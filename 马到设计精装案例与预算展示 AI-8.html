@@ -1,0 +1,2777 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>马到设计精装部 | 案例馆与精装项目决算系统</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter, Playfair Display & Noto Sans SC -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght=300;400;500;600;700&family=Playfair+Display:ital,wght=0,400;0,600;1,400&family=Noto+Sans+SC:wght=300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'Noto Sans SC', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        gold: {
+                            50: '#fbf8f3',
+                            100: '#f4ede1',
+                            500: '#c5a880',
+                            600: '#b39268',
+                            700: '#9d7c54',
+                        },
+                        onyx: '#1c1c1e',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #faf9f6;
+            color: #1c1c1e;
+        }
+        /* 定制滚动条 */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c5a880;
+            border-radius: 3px;
+        }
+        
+        /* 针对输入框移除标准样式 */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+        
+        /* 页面切换平滑过渡效果 */
+        .page-view {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .page-view.hidden-view {
+            display: none;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        .page-view.active-view {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* 打印报价单专用样式 */
+        @media print {
+            body {
+                background-color: #ffffff;
+                color: #000000;
+            }
+            #main-header, footer, .fixed, #view-cases, #view-saved, #cases-selector-tabs, .print-hidden {
+                display: none !important;
+            }
+            #view-calculator {
+                display: block !important;
+                opacity: 1 !important;
+                transform: none !important;
+                padding: 0 !important;
+            }
+            #calculator-layout-grid {
+                display: block !important;
+            }
+            .print-full-width {
+                width: 100% !important;
+                max-width: 100% !important;
+                box-shadow: none !important;
+                border: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="font-sans antialiased overflow-x-hidden">
+
+    <!-- 顶栏导航 -->
+    <header class="fixed top-0 left-0 w-full z-50 bg-white/95 backdrop-blur-md border-b border-neutral-100 transition-all duration-300 print-hidden" id="main-header">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <a href="#" onclick="switchView('cases')" class="flex items-center gap-3">
+                <span class="font-serif text-lg md:text-2xl tracking-wider font-bold text-onyx">
+                    马到设计<span class="text-gold-500 font-bold">精装部</span>
+                </span>
+            </a>
+            
+            <!-- 多页面独立标签切换链接 -->
+            <nav class="hidden md:flex items-center gap-1 bg-neutral-100/80 p-1.5 rounded-full text-xs font-semibold tracking-wider text-neutral-600">
+                <button onclick="switchView('cases')" id="nav-btn-cases" class="px-6 py-2.5 rounded-full transition-all duration-200 flex items-center gap-2 bg-white text-onyx shadow-sm">
+                    <i class="fa-solid fa-gem text-gold-500"></i> 精装案例作品馆
+                </button>
+                <button onclick="switchView('calculator')" id="nav-btn-calculator" class="px-6 py-2.5 rounded-full transition-all duration-200 flex items-center gap-2 text-neutral-500 hover:text-onyx">
+                    <i class="fa-solid fa-calculator"></i> 精装报价测算
+                </button>
+                <button onclick="switchView('saved')" id="nav-btn-saved" class="px-6 py-2.5 rounded-full transition-all duration-200 flex items-center gap-2 text-neutral-500 hover:text-onyx relative">
+                    <i class="fa-solid fa-folder-open text-emerald-600"></i> 精装项目决算
+                    <span id="saved-count-badge" class="absolute -top-1 -right-1 bg-emerald-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span>
+                </button>
+            </nav>
+            
+            <div class="hidden md:flex gap-3">
+                <button onclick="triggerPrintWithAlert()" class="px-5 py-2 border border-neutral-300 text-neutral-600 hover:border-onyx hover:text-onyx text-xs font-semibold rounded-full transition-all duration-300 flex items-center gap-1.5">
+                    <i class="fa-solid fa-print"></i>打印工程单
+                </button>
+                <button onclick="toggleCustomizer()" class="px-5 py-2 border border-gold-500 text-gold-600 hover:bg-gold-500 hover:text-white text-xs font-semibold rounded-full transition-all duration-300 shadow-sm flex items-center gap-2">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>精装数据管理</span>
+                </button>
+            </div>
+            <!-- Mobile 菜单按钮 -->
+            <button class="md:hidden text-onyx focus:outline-none" id="mobile-menu-btn">
+                <i class="fa-solid fa-bars text-xl"></i>
+            </button>
+        </div>
+        <!-- Mobile 菜单 -->
+        <div class="hidden bg-white/95 border-b border-neutral-100 px-6 py-6" id="mobile-menu">
+            <div class="flex flex-col gap-3 text-sm font-medium tracking-wider">
+                <button onclick="switchView('cases'); toggleMenu();" id="mobile-nav-btn-cases" class="text-left w-full px-4 py-3 rounded-lg bg-gold-50 text-gold-700 flex items-center gap-2">
+                    <i class="fa-solid fa-gem"></i> 精装案例作品馆
+                </button>
+                <button onclick="switchView('calculator'); toggleMenu();" id="mobile-nav-btn-calculator" class="text-left w-full px-4 py-3 rounded-lg text-neutral-600 flex items-center gap-2">
+                    <i class="fa-solid fa-calculator"></i> 精装报价测算
+                </button>
+                <button onclick="switchView('saved'); toggleMenu();" id="mobile-nav-btn-saved" class="text-left w-full px-4 py-3 rounded-lg text-neutral-600 flex items-center gap-2 justify-between">
+                    <span class="flex items-center gap-2"><i class="fa-solid fa-folder-open"></i> 精装项目决算</span>
+                    <span id="mobile-saved-count-badge" class="bg-emerald-600 text-white text-[9px] font-bold px-2 py-0.5 rounded-full hidden">0</span>
+                </button>
+                <hr class="my-2 border-neutral-100" />
+                <button onclick="toggleCustomizer(); toggleMenu();" class="w-full text-center px-6 py-3 bg-gold-500 text-white text-xs font-semibold tracking-widest rounded-full shadow-sm">
+                    数据管理后台
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主页面容器一：精装案例作品馆 -->
+    <main id="view-cases" class="page-view active-view pt-28 pb-16 min-h-screen">
+        <!-- 案例馆专属页头 -->
+        <section class="max-w-7xl mx-auto px-6 text-center space-y-4 mb-10 print-hidden animate-fade-in">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-gold-50 text-gold-700 border border-gold-100 rounded-full text-xs font-semibold tracking-wider">
+                <i class="fa-solid fa-images text-[10px]"></i> <span>MA DAO GALLERY · 精装竣工方案库</span>
+            </div>
+            <h1 class="text-3xl md:text-5xl font-serif text-onyx leading-tight font-bold">
+                马到设计精装案例作品馆
+            </h1>
+            <p class="text-neutral-500 max-w-2xl mx-auto text-xs md:text-sm leading-relaxed">
+                高精度的施工图、效果图、真实落地的完工实景图三位一体。您可以随时点选下方案例进行高细节观摩，一键将案例参数同步至预算系统。
+            </p>
+        </section>
+
+        <section class="max-w-7xl mx-auto px-6">
+            <!-- 案例选择轮播器/网格 -->
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 pb-4 border-b border-neutral-100 gap-4">
+                <div>
+                    <span class="text-gold-500 font-semibold tracking-widest text-xs uppercase block mb-1">MaDao Hardcover Portfolio</span>
+                    <h2 class="text-xl md:text-2xl font-serif text-onyx font-bold">精装竣工展示库</h2>
+                </div>
+                <div class="text-xs text-neutral-400 font-medium">
+                    温馨提示：点击图片中间放大预览，点击“替换图片”可由设计师自主导入项目完工照。
+                </div>
+            </div>
+
+            <!-- 卡片选项容器 -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8" id="cases-selector-tabs">
+                <!-- 动态由 JavaScript 生成 -->
+            </div>
+
+            <!-- 交互放映主展厅 -->
+            <div id="case-theater" class="bg-white rounded-3xl p-6 lg:p-10 shadow-xl border border-neutral-200/60 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
+                
+                <!-- 左侧栏：案例属性 -->
+                <div class="lg:col-span-4 space-y-6 bg-gold-50/20 p-6 rounded-2xl border border-neutral-200/70">
+                    <div class="flex items-center justify-between">
+                        <span id="active-case-tag" class="text-xs px-2.5 py-1 bg-gold-500 text-white rounded font-medium uppercase tracking-wider">精装案例作品</span>
+                        <span id="active-case-id" class="text-xs text-neutral-400 font-serif font-semibold">CASE 01</span>
+                    </div>
+                    
+                    <div class="space-y-1">
+                        <h3 id="active-case-title" class="text-lg md:text-xl font-serif text-onyx font-bold">马到设计精装部 · 山海意奢</h3>
+                        <p id="active-case-subtitle" class="text-[11px] text-gold-600 tracking-wider font-semibold uppercase">都市实用级精装项目</p>
+                    </div>
+
+                    <p id="active-case-desc" class="text-xs text-neutral-500 leading-relaxed">
+                        科学分配硬装及定制预算，利用高集成性价比供应链、微小缝精细收口木饰面及高显指无主灯，打造极富意式质感的高落地还原度空间。
+                    </p>
+
+                    <!-- 属性指标明细 -->
+                    <div class="grid grid-cols-2 gap-4 pt-4 border-t border-neutral-100">
+                        <div>
+                            <span class="text-[10px] text-neutral-400 uppercase tracking-widest block mb-0.5">精装风格</span>
+                            <span id="active-case-style" class="text-xs md:text-sm font-semibold text-onyx">意式极奢</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-neutral-400 uppercase tracking-widest block mb-0.5">套内面积</span>
+                            <span id="active-case-area" class="text-xs md:text-sm font-semibold text-onyx">180㎡</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-neutral-400 uppercase tracking-widest block mb-0.5">预估造价</span>
+                            <span id="active-case-cost" class="text-xs md:text-sm font-bold text-gold-600">￥45万起</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-neutral-400 uppercase tracking-widest block mb-0.5">落地周期</span>
+                            <span id="active-case-duration" class="text-xs md:text-sm font-semibold text-onyx">60天</span>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-neutral-200/80 space-y-2">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-neutral-400" id="active-case-designer">执行部门：马到设计精装部</span>
+                            <span class="text-[10px] text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded font-semibold"><i class="fa-solid fa-circle-check text-[8px] mr-1"></i>竣工交付</span>
+                        </div>
+                    </div>
+
+                    <!-- 联动按钮：数据同步并带入预算页面 -->
+                    <div class="pt-4">
+                        <button onclick="syncCaseToCalculatorAndNavigate()" class="w-full py-3.5 bg-onyx hover:bg-gold-600 text-white rounded-xl text-xs font-semibold tracking-wider transition-all flex items-center justify-center gap-2 shadow-md hover:scale-[1.02] active:scale-95 duration-200">
+                            <i class="fa-solid fa-calculator text-gold-500"></i>
+                            <span>一键将此案例数据同步至预算单</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 右侧栏：15张图片多维画廊展示器 -->
+                <div class="lg:col-span-8 space-y-6">
+                    <!-- 画廊子维度选项 -->
+                    <div class="flex border-b border-neutral-200 pb-px gap-6">
+                        <button onclick="switchGalleryTab('blueprints')" id="tab-blueprints" class="gallery-tab-btn active pb-3 text-xs md:text-sm font-semibold text-gold-600 border-b-2 border-gold-500 transition-all flex items-center gap-2">
+                            <i class="fa-solid fa-map"></i> 平面设计图 <span class="bg-gold-50 text-gold-600 text-[10px] px-2 py-0.5 rounded-full">3张</span>
+                        </button>
+                        <button onclick="switchGalleryTab('renderings')" id="tab-renderings" class="gallery-tab-btn pb-3 text-xs md:text-sm font-semibold text-neutral-400 border-b-2 border-transparent hover:text-onyx transition-all flex items-center gap-2">
+                            <i class="fa-solid fa-cube"></i> 3D效果图 <span class="bg-neutral-100 text-neutral-500 text-[10px] px-2 py-0.5 rounded-full">6张</span>
+                        </button>
+                        <button onclick="switchGalleryTab('reals')" id="tab-reals" class="gallery-tab-btn pb-3 text-xs md:text-sm font-semibold text-neutral-400 border-b-2 border-transparent hover:text-onyx transition-all flex items-center gap-2">
+                            <i class="fa-solid fa-camera-retro"></i> 竣工实景图 <span class="bg-neutral-100 text-neutral-500 text-[10px] px-2 py-0.5 rounded-full">6张</span>
+                        </button>
+                    </div>
+
+                    <!-- 本地图片上传核心容器 -->
+                    <div class="relative bg-neutral-50 p-4 rounded-2xl border border-neutral-200">
+                        <div class="absolute -top-3 left-6 bg-white border border-neutral-200 px-3 py-0.5 rounded-full text-[10px] text-neutral-400 font-semibold flex items-center gap-1.5 z-10 shadow-sm">
+                            <span class="w-1.5 h-1.5 bg-gold-500 rounded-full animate-ping"></span>
+                            <span>作品大图：点击各格大镜子按钮可放大看清工艺细节</span>
+                        </div>
+                        
+                        <!-- 槽位 1-3：平面图网格 -->
+                        <div id="gallery-grid-blueprints" class="gallery-content-grid grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <!-- 动态加载 3 张平面布置图 -->
+                        </div>
+
+                        <!-- 槽位 4-9：3D效果图网格 (1大5小) -->
+                        <div id="gallery-grid-renderings" class="gallery-content-grid hidden grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <!-- 动态加载 6 张效果图 -->
+                        </div>
+
+                        <!-- 槽位 10-15：竣工实景照网格 -->
+                        <div id="gallery-grid-reals" class="gallery-content-grid hidden grid grid-cols-2 md:grid-cols-3 gap-4">
+                            <!-- 动态加载 6 张实景拍摄图 -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- 主页面容器二：精装报价测算 (只做高细度报价系统) -->
+    <main id="view-calculator" class="page-view hidden-view pt-28 pb-16 min-h-screen">
+        <!-- 报价测算专属页头 -->
+        <section class="max-w-7xl mx-auto px-6 text-center space-y-4 mb-10 print-hidden">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-full text-xs font-semibold tracking-wider">
+                <i class="fa-solid fa-calculator text-[10px]"></i> <span>MADAO BUDGET GENERATOR · 精装精准测算器</span>
+            </div>
+            <h1 class="text-3xl md:text-5xl font-serif text-onyx leading-tight font-bold">
+                精装项目造价测算系统
+            </h1>
+            <p class="text-neutral-500 max-w-2xl mx-auto text-xs md:text-sm leading-relaxed">
+                马到设计精装部专属核算工具。设定房屋套内面积并选配设计风格后，在左侧修改 24 项工程的价格或公式，右侧可秒级自动复核高精度预估合同清单。
+            </p>
+        </section>
+
+        <section class="max-w-7xl mx-auto px-6">
+            <div id="calculator-layout-grid" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                
+                <!-- 【左侧控制台】参数调配与24项工程独立选配中心 -->
+                <div class="lg:col-span-5 space-y-6 print-hidden">
+                    <div class="space-y-2">
+                        <span class="text-emerald-600 font-semibold tracking-widest text-xs uppercase">Calculator Config</span>
+                        <h2 class="text-xl md:text-2xl font-serif text-onyx font-bold">精装参数选配与公式调优</h2>
+                    </div>
+                    
+                    <!-- 基础全局属性设定 (全新升级为精装风格体系) -->
+                    <div class="bg-white p-5 rounded-2xl shadow border border-neutral-200/60 grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase tracking-wider text-neutral-400 mb-1.5">套内实际面积</label>
+                            <div class="relative">
+                                <input type="number" id="calc-area" value="90" min="20" max="1000" class="w-full bg-neutral-50 border border-neutral-200 rounded-lg py-2 px-3 outline-none focus:border-emerald-500 font-bold text-onyx text-xs" oninput="calculateCosts('system')">
+                                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 text-[10px] font-bold">㎡</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase tracking-wider text-neutral-400 mb-1.5">主案精装风格</label>
+                            <select id="calc-style" class="w-full bg-neutral-50 border border-neutral-200 rounded-lg py-2 px-2.5 outline-none focus:border-emerald-500 font-semibold text-onyx text-xs" onchange="calculateCosts('system')">
+                                <option value="1.0" selected>极简主义</option>
+                                <option value="1.20">暖白法式</option>
+                                <option value="1.35">东方雅境</option>
+                                <option value="1.25">都市轻奢</option>
+                                <option value="1.40">无界美学</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 24项选配与数据修改中心 -->
+                    <div class="bg-white p-5 rounded-2xl shadow border border-neutral-200/60 space-y-4">
+                        <div class="flex justify-between items-center border-b border-neutral-100 pb-2">
+                            <h4 class="text-xs font-bold text-onyx flex items-center gap-1.5">
+                                <i class="fa-solid fa-list-check text-emerald-600"></i>
+                                <span>24项工项细则改写</span>
+                            </h4>
+                            <button onclick="calculateCosts('system')" class="text-[10px] bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded transition-all font-bold flex items-center gap-1">
+                                <i class="fa-solid fa-rotate-left"></i> 一键重设系统默认公式
+                            </button>
+                        </div>
+
+                        <!-- 滚动列表区 -->
+                        <div class="space-y-4 max-h-[520px] overflow-y-auto pr-2" id="interactive-config-container">
+                            <!-- 由 JS 按分类动态渲染出 24 个条目 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 【右侧结果】高保真工程预算与盈亏两用账单卡片 -->
+                <div class="lg:col-span-7 bg-white rounded-3xl shadow-xl border border-neutral-200/80 overflow-hidden print-full-width flex flex-col">
+                    
+                    <!-- 双轨道呈现/管理控制切换条 (盈亏对比核心控制按钮组) -->
+                    <div class="bg-neutral-50 border-b border-neutral-200 px-6 py-3 flex flex-col sm:flex-row justify-between items-center gap-3 print-hidden">
+                        <span class="text-[11px] text-neutral-400 font-bold tracking-wider flex items-center gap-1.5">
+                            <i class="fa-solid fa-layer-group text-gold-500"></i> 视图切换：报价提案 or 工程盈亏审计
+                        </span>
+                        <div class="flex bg-neutral-200/60 p-1 rounded-xl text-xs font-semibold gap-1">
+                            <button onclick="setQuoteViewMode('client')" id="mode-btn-client" class="px-4 py-1.5 rounded-lg transition-all duration-200 flex items-center gap-1.5 bg-white text-onyx shadow-sm">
+                                <span>🧾 客户报价单</span>
+                            </button>
+                            <button onclick="setQuoteViewMode('profit')" id="mode-btn-profit" class="px-4 py-1.5 rounded-lg transition-all duration-200 flex items-center gap-1.5 text-neutral-500 hover:text-onyx">
+                                <span>📊 内部盈亏控制</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 决算管理模式专属辅助栏 -->
+                    <div id="profit-management-helper" class="hidden px-6 py-2.5 bg-amber-500/10 border-b border-amber-200 text-amber-800 text-[10px] font-semibold flex justify-between items-center print-hidden">
+                        <span class="flex items-center gap-1.5"><i class="fa-solid fa-triangle-exclamation"></i> 内部模式：直接在下方改写实际支出，预算单价锁定防止误改。</span>
+                        <button onclick="syncAllActualCostsToBudget()" class="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded font-bold transition-colors">
+                            一键对齐预算 (决算重设)
+                        </button>
+                    </div>
+
+                    <!-- 预算单页头 -->
+                    <div class="bg-onyx p-6 text-white flex justify-between items-center">
+                        <div class="space-y-1">
+                            <span class="text-xs tracking-widest text-gold-500 font-bold uppercase" id="quote-card-subtitle">OFFICIAL BUDGET INVOICE</span>
+                            <h3 class="text-lg font-serif" id="quote-card-title">马到设计精装部 · 工程预算单</h3>
+                        </div>
+                        <div class="text-right text-[10px] text-neutral-400 font-semibold space-y-0.5">
+                            <div id="quote-number">预估单号: MD-20260605-5827</div>
+                            <div id="quote-date">日期: 2026-06-05</div>
+                        </div>
+                    </div>
+
+                    <!-- 顶部核心参数简报 -->
+                    <div class="px-6 py-4 bg-gold-50 border-b border-neutral-100 flex flex-wrap justify-between items-center text-xs text-neutral-600 gap-4">
+                        <div>
+                            <span>估算套内面积：</span><strong id="summary-area" class="text-onyx text-sm">90</strong> <span class="font-bold">㎡</span>
+                        </div>
+                        <div>
+                            <span>设计定位：</span><strong id="summary-style" class="text-onyx text-sm">极简主义</strong>
+                        </div>
+                        <div>
+                            <span>预算状态：</span><span class="text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded font-bold" id="quote-card-badge"><i class="fa-solid fa-check-double mr-1 text-[10px]"></i>已选配工程实时汇总</span>
+                        </div>
+                    </div>
+
+                    <!-- 正式预算单/决算单明细表 -->
+                    <div class="overflow-x-auto min-h-[350px]">
+                        <table class="w-full text-left border-collapse">
+                            <thead id="quote-table-thead">
+                                <!-- 动态由 JS 切换呈现表头 -->
+                            </thead>
+                            <tbody id="detailed-quote-tbody" class="text-xs text-neutral-700 divide-y divide-neutral-100">
+                                <!-- 由 JS 动态高精度渲染输出 -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 底部总价及金融看板 -->
+                    <div class="bg-neutral-900 text-white p-6 flex flex-col md:flex-row justify-between items-center gap-6">
+                        <div class="space-y-1 text-center md:text-left text-neutral-400 flex-1">
+                            <span class="text-[10px] block uppercase font-bold tracking-widest" id="quote-total-caption">CONTRACT TOTAL PRICE</span>
+                            <div class="text-[11px] text-neutral-300" id="quote-total-desc">本估算依据客户所选子工程及公式，在现场与设计师一秒即可秒算并导出 PDF / 打印。</div>
+                            
+                            <!-- 保存/AI/打印按钮排布 -->
+                            <div class="pt-4 print-hidden flex flex-wrap gap-2 justify-center md:justify-start">
+                                <button onclick="openSaveQuoteModal()" class="px-4 py-2.5 bg-gradient-to-r from-amber-500 to-gold-600 hover:from-amber-600 hover:to-gold-700 text-white rounded-xl text-xs font-bold tracking-wider transition-all flex items-center justify-center gap-2 shadow hover:scale-[1.02] active:scale-95 duration-150">
+                                    <i class="fa-solid fa-floppy-disk"></i>
+                                    <span>保存当前精装项目单</span>
+                                </button>
+                                <button onclick="generateAIBudgetSuggestions()" class="px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl text-xs font-bold tracking-wider transition-all flex items-center justify-center gap-2 shadow">
+                                    <i class="fa-solid fa-wand-magic-sparkles text-xs animate-pulse"></i>
+                                    <span>✨ AI 预算建议</span>
+                                </button>
+                                <button onclick="triggerPrintWithAlert()" class="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold tracking-wider transition-all flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-print"></i>
+                                    <span>打印工程预算单</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- 动态造价与盈亏统计模块 (多维自适应呈现) -->
+                        <div id="financial-summary-block" class="text-center md:text-right min-w-[200px] space-y-1 border-t md:border-t-0 border-neutral-800 pt-4 md:pt-0">
+                            <!-- 动态加载普通总价或管理模式下的三大核心金融模块 -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- 主页面容器三：精装项目决算管理页 -->
+    <main id="view-saved" class="page-view hidden-view pt-28 pb-16 min-h-screen">
+        <!-- 决算中心专属页头 -->
+        <section class="max-w-7xl mx-auto px-6 text-center space-y-4 mb-10 print-hidden">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-gold-50 text-gold-700 border border-gold-100 rounded-full text-xs font-semibold tracking-wider">
+                <i class="fa-solid fa-folder-closed text-[10px]"></i> <span>MADAO ARCHIVE CABINET · 精装项目决算中枢</span>
+            </div>
+            <h1 class="text-3xl md:text-5xl font-serif text-onyx leading-tight font-bold">
+                精装项目决算档案柜
+            </h1>
+            <p class="text-neutral-500 max-w-2xl mx-auto text-xs md:text-sm leading-relaxed">
+                精装部各工项决算与实际造价管理中枢。在此可快速检索历史单据并修改实际支出差额，精确把控精装施工中的材料与人工损耗盈亏，支持一键备份导出独立包。
+            </p>
+        </section>
+
+        <section class="max-w-7xl mx-auto px-6">
+            <!-- 档案柜控制带 -->
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 pb-4 border-b border-neutral-100 gap-4">
+                <div>
+                    <span class="text-gold-500 font-semibold tracking-widest text-xs uppercase block mb-1">Hardcover Estimates & Settlements</span>
+                    <h2 class="text-xl md:text-2xl font-serif text-onyx font-bold">已存精装项目决算单 (<span id="saved-total-count-text">0</span>份)</h2>
+                </div>
+                <div class="text-xs text-neutral-400 font-medium">
+                    提示：点击下方的“查看明细”可快速进行精装工项支出的查改与保存，保持业务操作极其简单。
+                </div>
+            </div>
+
+            <!-- 卡片承载容器 (动态渲染) -->
+            <div id="saved-quotes-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- 动态由 JS 输出 -->
+            </div>
+        </section>
+    </main>
+
+    <!-- 隐藏的本地图片选择器 -->
+    <input type="file" id="global-hidden-uploader" accept="image/*" class="hidden" onchange="handleHiddenUpload(this)">
+
+    <!-- 全局图片灯箱 (Lightbox Overlay) -->
+    <div id="lightbox-modal" class="fixed inset-0 bg-black/95 z-[9999] hidden flex flex-col justify-between items-center p-4 select-none">
+        <!-- 头部工具条 -->
+        <div class="w-full flex justify-between items-center text-white p-4 max-w-7xl">
+            <span id="lightbox-counter" class="text-sm font-semibold tracking-widest text-gold-500 uppercase">第 1 / 15 张图片</span>
+            <button onclick="closeLightbox()" class="text-neutral-400 hover:text-white transition-colors p-2 text-3xl">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        
+        <!-- 主图容器 -->
+        <div class="flex-1 w-full max-w-5xl flex items-center justify-between gap-4 relative">
+            <button onclick="prevLightboxImage()" class="text-white/60 hover:text-white bg-white/10 hover:bg-white/20 p-4 rounded-full transition-all text-xl">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            
+            <div class="flex-1 h-full flex flex-col justify-center items-center overflow-hidden p-2">
+                <img id="lightbox-img" src="" alt="放大精装图" class="max-w-full max-h-[70vh] object-contain rounded-lg shadow-2xl transition-all duration-300">
+                <p id="lightbox-caption" class="text-white text-xs mt-4 tracking-widest text-center max-w-lg bg-black/50 px-4 py-2 rounded-full"></p>
+            </div>
+            
+            <button onclick="nextLightboxImage()" class="text-white/60 hover:text-white bg-white/10 hover:bg-white/20 p-4 rounded-full transition-all text-xl">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        </div>
+        
+        <!-- 底部微缩点 -->
+        <div id="lightbox-dots" class="flex gap-2 p-6 max-w-xl overflow-x-auto justify-center">
+            <!-- 动态生成 -->
+        </div>
+    </div>
+
+    <!-- AI 预算平替建议模态框 (双重防护，无刷新展示，投影清晰度特调) -->
+    <div id="ai-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[99999] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl flex flex-col max-h-[85vh] border border-neutral-100">
+            <div class="flex justify-between items-center border-b border-neutral-100 pb-3 mb-4">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                        <i class="fa-solid fa-microchip text-base"></i>
+                    </div>
+                    <h3 class="text-base md:text-lg font-serif font-bold text-onyx">✨ AI 预算优化与主材平替方案</h3>
+                </div>
+                <button onclick="closeAIModal()" class="text-neutral-400 hover:text-onyx p-1 text-xl">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+            
+            <!-- Loading -->
+            <div id="ai-loading" class="flex flex-col items-center justify-center py-16 space-y-4">
+                <div class="relative w-12 h-12">
+                    <div class="absolute inset-0 rounded-full border-4 border-emerald-100"></div>
+                    <div class="absolute inset-0 rounded-full border-4 border-t-emerald-600 animate-spin"></div>
+                </div>
+                <p class="text-xs text-neutral-500 font-semibold animate-pulse">精装部 AI 算量师正在快速精估物料并为您寻找供应链平替方案...</p>
+            </div>
+
+            <!-- Result -->
+            <div id="ai-result-container" class="hidden flex-1 overflow-y-auto space-y-4 pr-1 text-sm text-neutral-600 leading-relaxed scroll-smooth">
+                <div id="ai-markdown-content" class="prose prose-sm max-w-none">
+                    <!-- HTML Content -->
+                </div>
+            </div>
+
+            <div class="border-t border-neutral-100 pt-3 mt-4 flex flex-col sm:flex-row justify-between items-center gap-3 text-[10px] text-neutral-400">
+                <span>* 降本建议由马到设计精装部工程物料供应链后台实时计算</span>
+                <button onclick="closeAIModal()" class="w-full sm:w-auto px-5 py-2 bg-onyx hover:bg-neutral-800 text-white rounded-lg font-bold transition-all text-xs">已阅并返回</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 高颜值保存预算单模态弹窗 -->
+    <div id="save-quote-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md z-[99999] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-neutral-100 space-y-5">
+            <div class="flex justify-between items-center pb-2 border-b border-neutral-100">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full bg-gold-50 text-gold-600 flex items-center justify-center text-xs">
+                        <i class="fa-solid fa-folder-plus"></i>
+                    </div>
+                    <h3 class="text-sm font-bold text-onyx font-serif">归档当前精装工程决算单</h3>
+                </div>
+                <button onclick="closeSaveQuoteModal()" class="text-neutral-400 hover:text-onyx p-1 transition-colors">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+
+            <!-- 填写表单 -->
+            <div class="space-y-4 text-xs">
+                <div>
+                    <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-1">业主姓名/项目名称 *</label>
+                    <input type="text" id="save-client-name" placeholder="例如：山海云筑 7栋1202 业主李女士" class="w-full bg-neutral-50 border border-neutral-200 focus:border-gold-500 rounded-xl px-3 py-2.5 outline-none font-semibold text-neutral-800">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-1">业主联系电话 (选填)</label>
+                    <input type="text" id="save-client-phone" placeholder="输入11位联系电话方便查阅" class="w-full bg-neutral-50 border border-neutral-200 focus:border-gold-500 rounded-xl px-3 py-2.5 outline-none text-neutral-700">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-1">项目测算备注 (选填)</label>
+                    <textarea id="save-client-remarks" rows="2" placeholder="填写特定的材料工艺，如：客厅去吊顶，主卧定制柜主打极简奶油色板材..." class="w-full bg-neutral-50 border border-neutral-200 focus:border-gold-500 rounded-xl px-3 py-2 outline-none text-neutral-700"></textarea>
+                </div>
+                
+                <div class="bg-gold-50/50 p-3 rounded-xl border border-gold-100 space-y-1 text-neutral-600">
+                    <div class="flex justify-between">
+                        <span>测算参数:</span>
+                        <span class="font-bold text-onyx"><span id="save-preview-area">90</span>㎡ · <span id="save-preview-style">极简主义</span></span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>协议预算总额:</span>
+                        <span class="font-bold text-gold-600" id="save-preview-total">¥106,335.99</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 操作 -->
+            <div class="flex gap-2 text-xs pt-1">
+                <button onclick="closeSaveQuoteModal()" class="flex-1 py-2.5 border border-neutral-200 hover:bg-neutral-50 text-neutral-500 rounded-xl font-bold transition-all">取消返回</button>
+                <button onclick="submitSaveQuote()" class="flex-1 py-2.5 bg-onyx hover:bg-gold-600 text-white rounded-xl font-bold transition-all shadow-md">确认存入决算档案</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 预算决算明细、检索以及决算偏差对比弹出框 (Inspect Modal) -->
+    <div id="inspector-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md z-[99999] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-3xl w-full p-6 shadow-2xl border border-neutral-100 flex flex-col max-h-[85vh]">
+            <!-- 弹窗页头 -->
+            <div class="flex justify-between items-start pb-4 border-b border-neutral-100">
+                <div class="space-y-1">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs">
+                            <i class="fa-solid fa-file-invoice"></i>
+                        </div>
+                        <h3 class="text-sm md:text-base font-bold text-onyx font-serif" id="inspector-title">业主精装决算核对</h3>
+                    </div>
+                    <p class="text-[10px] text-neutral-400 font-mono" id="inspector-subtitle">预估单号: -- | 日期: --</p>
+                </div>
+                <button onclick="closeSavedQuoteInspector()" class="text-neutral-400 hover:text-onyx p-1 transition-colors">
+                    <i class="fa-solid fa-times text-lg"></i>
+                </button>
+            </div>
+
+            <!-- 参数汇总与盈亏偏差历史看板 -->
+            <div class="grid grid-cols-4 gap-3 my-4 p-3.5 bg-neutral-50 rounded-xl text-xs text-neutral-600 border border-neutral-100">
+                <div>
+                    <span class="text-[9px] text-neutral-400 block mb-0.5">测算面积/风格</span>
+                    <span class="font-bold text-neutral-800 truncate block" id="inspector-meta">-- ㎡ | --</span>
+                </div>
+                <div>
+                    <span class="text-[9px] text-neutral-400 block mb-0.5">预算协议总额</span>
+                    <span class="font-bold text-neutral-800" id="inspector-budget-total">--</span>
+                </div>
+                <div>
+                    <span class="text-[9px] text-neutral-400 block mb-0.5">工程实际总支出</span>
+                    <span class="font-bold text-onyx" id="inspector-actual-total">--</span>
+                </div>
+                <div>
+                    <span class="text-[9px] text-neutral-400 block mb-0.5">实际工程偏差(盈亏)</span>
+                    <span class="font-bold block" id="inspector-profit-total">--</span>
+                </div>
+            </div>
+
+            <!-- 检索输入框 -->
+            <div class="mb-3 relative">
+                <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 text-xs">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </span>
+                <input type="text" id="inspector-item-search" placeholder="输入关键字模糊检索本单内精装工项（例如: 瓷砖、辅料、空调、地暖...）" oninput="filterInspectorItems()" class="w-full bg-neutral-50 focus:bg-white border border-neutral-200 focus:border-gold-500 rounded-xl pl-9 pr-4 py-2.5 text-xs outline-none transition-all font-semibold">
+            </div>
+
+            <!-- 明细决算偏差表滚动区 -->
+            <div class="flex-1 overflow-y-auto pr-1 border border-neutral-100 rounded-xl">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-neutral-200 bg-neutral-50/50 text-neutral-400 text-[9px] font-bold uppercase tracking-wider">
+                            <th class="py-2.5 px-4">工程项目</th>
+                            <th class="py-2.5 px-4 text-right">协议预算金额</th>
+                            <th class="py-2.5 px-4 text-right">决算实际支出 (直接改写)</th>
+                            <th class="py-2.5 px-4 text-right">盈亏偏差</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inspector-items-tbody" class="text-xs text-neutral-700 divide-y divide-neutral-100">
+                        <!-- 动态渲染 -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 底部操作按钮 -->
+            <div class="flex flex-col sm:flex-row gap-2 pt-4 mt-2 border-t border-neutral-100 text-xs">
+                <div class="flex-1 text-[10px] text-neutral-400 flex items-center min-w-0">
+                    <span id="inspector-remarks" class="truncate italic block w-full">备注: --</span>
+                </div>
+                <div class="flex gap-2 justify-end w-full sm:w-auto">
+                    <button onclick="closeSavedQuoteInspector()" class="px-4 py-2 border border-neutral-200 hover:bg-neutral-50 text-neutral-500 rounded-xl font-bold transition-all">关闭</button>
+                    <!-- 保存修改按钮 -->
+                    <button onclick="saveInspectorActualCosts()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold transition-all shadow-md flex items-center gap-1.5 active:scale-95 duration-100">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        <span>保存决算修改</span>
+                    </button>
+                    <button id="inspector-load-btn" class="px-4 py-2 bg-neutral-800 hover:bg-onyx text-white rounded-xl font-bold transition-all shadow-md flex items-center gap-1.5 active:scale-95 duration-100">
+                        <i class="fa-solid fa-file-signature"></i>
+                        <span>载入至测算面板</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 顶层轻便Toast提醒层 -->
+    <div id="global-toast" class="fixed top-24 left-1/2 -translate-x-1/2 z-[99999] hidden bg-neutral-900 text-white border border-neutral-800 px-6 py-3 rounded-full shadow-2xl text-xs flex items-center gap-2.5 transition-all duration-300">
+        <i class="fa-solid fa-circle-check text-gold-500" id="global-toast-icon"></i>
+        <span id="global-toast-msg" class="font-medium tracking-wide">信息同步成功！</span>
+    </div>
+
+    <!-- 右下角悬浮控制台入口 -->
+    <div class="fixed bottom-6 right-6 z-40 flex flex-col gap-3 print-hidden">
+        <button onclick="toggleCustomizer()" class="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-gold-600 to-gold-500 hover:from-gold-700 hover:to-gold-600 text-white rounded-full shadow-2xl transition-all duration-300 font-semibold text-sm border border-gold-100 hover:scale-105 active:scale-95">
+            <i class="fa-solid fa-sliders text-base"></i>
+            <span>定制数据管理</span>
+        </button>
+    </div>
+
+    <!-- 设计师专属：案例配置和代码导出后台抽屉 -->
+    <div id="customizer-panel" class="fixed top-0 right-0 h-full w-full max-w-lg bg-neutral-900/95 backdrop-blur-md text-white z-50 shadow-2xl transform translate-x-full transition-transform duration-500 overflow-y-auto border-l border-neutral-800 print-hidden">
+        <div class="p-6 border-b border-neutral-800 flex justify-between items-center bg-neutral-950/40">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-feather-pointed text-gold-500"></i>
+                <span class="font-serif text-base tracking-wider font-semibold text-white">马到设计精装部 · 案例编辑器</span>
+            </div>
+            <button onclick="toggleCustomizer()" class="text-neutral-400 hover:text-white p-2">
+                <i class="fa-solid fa-times text-xl"></i>
+            </button>
+        </div>
+
+        <div class="p-6 space-y-6">
+            <!-- 说明板 -->
+            <div class="bg-gold-50/10 border border-gold-500/20 p-4 rounded-xl space-y-3">
+                <h4 class="text-xs font-bold text-gold-500 flex items-center gap-1.5">
+                    <i class="fa-solid fa-circle-question"></i> 如何完全自建新案例和图片？
+                </h4>
+                <div class="text-[11px] text-neutral-300 space-y-2 leading-relaxed">
+                    <p class="text-gold-500 font-semibold">1. 【一键新增空白案例】：在下方点击金色的“新增案例”按钮。系统将瞬间自动创建一个全新的案例标签！</p>
+                    <p>2. 【修改文字属性】：在下拉菜单中选中这个新案例，在编辑表单内修改好名称、面积、设计周期等，点击“更新案例信息并渲染”。</p>
+                    <p>3. 【零代码更换新案例照片】：返回页面，在该新增案例的 15 张格子图里，点击任意图片上的 **“替换图片”**，即可瞬间上传本地电脑/手机上的完工实拍或图纸！</p>
+                    <p>4. 【保存并下载永久文件】：点击下方“导出并下载新网页”金色按钮。您新增的案例、图片以及已存的**历史决算账单**就会永久嵌入网页代码中。iPad 上双击依然完全离线显示！</p>
+                </div>
+            </div>
+
+            <!-- 数据打包导出 -->
+            <div class="bg-gold-500/15 border border-gold-500/30 p-4 rounded-xl space-y-2">
+                <h4 class="text-xs font-semibold text-gold-500 uppercase tracking-widest flex items-center gap-1.5">
+                    <i class="fa-solid fa-download"></i> 离线独立保存网页文件 (包含已存决算单)
+                </h4>
+                <p class="text-[11px] text-neutral-300">
+                    在页面中上传替换好您的图片并调整好报价单之后，点击下方按钮，即可导出**包含了新案例与当前价格配置、以及历史已存预算与决算单**的独立 HTML。可在 iPad 上无网双击秒开使用！
+                </p>
+                <button onclick="exportFullHTML()" class="w-full py-2.5 bg-gold-500 hover:bg-gold-600 text-white rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 mt-2 shadow">
+                    <i class="fa-solid fa-file-export"></i> 导出并下载新网页 index.html
+                </button>
+            </div>
+
+            <!-- 增加：本地缓存应急容灾控制区 -->
+            <div class="bg-red-500/10 border border-red-500/20 p-4 rounded-xl space-y-2">
+                <h4 class="text-xs font-semibold text-red-400 uppercase tracking-widest flex items-center gap-1.5">
+                    <i class="fa-solid fa-triangle-exclamation"></i> 本地缓存应急管理
+                </h4>
+                <p class="text-[11px] text-neutral-300 leading-relaxed">
+                    系统已开启 **LocalStorage 自动容灾机制**，任何操作、图片上传、决算新增及工作台数值调整均会实时自动暂存在浏览器本地，防止误刷新丢失。
+                </p>
+                <p class="text-[11px] text-neutral-400 leading-relaxed">
+                    如果您在新版文件里更新了内置案例，或需要清空旧缓存并强制还原为当前 HTML 网页的内置代码初始值，请使用下方按钮重置：
+                </p>
+                <button id="btn-reset-cache" onclick="triggerResetCache()" class="w-full py-2.5 bg-red-950/40 hover:bg-red-900/50 text-red-400 border border-red-900/40 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 mt-2">
+                    <i class="fa-solid fa-trash-can"></i>
+                    <span id="reset-cache-text">清空本地缓存，还原网页默认值</span>
+                </button>
+            </div>
+
+            <!-- 数据属性快捷修改 -->
+            <div>
+                <h4 class="text-xs font-semibold text-gold-500 uppercase tracking-widest mb-4">案例数据快速编辑</h4>
+                <div class="space-y-4">
+                    <!-- 新增案例 -->
+                    <div class="flex items-end gap-2">
+                        <div class="flex-1">
+                            <label class="block text-[11px] text-neutral-400 mb-1 font-bold">选择要编辑的精装案例</label>
+                            <select id="customizer-case-select" onchange="loadCaseToCustomizerForm()" class="w-full bg-neutral-800 border border-neutral-700 rounded-lg py-2 px-3 text-white text-xs outline-none focus:border-gold-500">
+                                <!-- 动态加载 -->
+                            </select>
+                        </div>
+                        <button onclick="createNewCasePlaceholder()" class="bg-gold-500 hover:bg-gold-600 text-white text-xs font-bold px-3 py-2 rounded-lg transition-all flex items-center gap-1.5 h-[34px] shadow whitespace-nowrap active:scale-95">
+                            <i class="fa-solid fa-plus text-[10px]"></i>
+                            <span>新增案例</span>
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-3 text-xs">
+                        <div>
+                            <label class="block text-[11px] text-neutral-400 mb-1 font-bold">精装案名称</label>
+                            <input type="text" id="edit-case-title" class="w-full bg-neutral-800 border border-neutral-700 rounded-lg py-2 px-3 text-white">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-neutral-400 mb-1 font-bold">项目标签</label>
+                            <input type="text" id="edit-case-tag" class="w-full bg-neutral-800 border border-neutral-700 rounded-lg py-2 px-3 text-white">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-3 text-xs">
+                        <div>
+                            <!-- 修改 精装风格 为下拉选择，同测算对齐 -->
+                            <label class="block text-[11px] text-neutral-400 mb-1 font-bold">精装风格</label>
+                            <select id="edit-case-style" class="w-full bg-neutral-800 border border-neutral-700 rounded-lg py-2 px-3 text-white text-xs outline-none focus:border-gold-500">
+                                <option value="极简主义">极简主义</option>
+                                <option value="暖白法式">暖白法式</option>
+                                <option value="东方雅境">东方雅境</option>
+                                <option value="都市轻奢">都市轻奢</option>
+                                <option value="无界美学">无界美学</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-neutral-400 mb-1 font-bold">套内面积</label>
+                            <input type="text" id="edit-case-area" class="w-full bg-neutral-800 border border-neutral-700 rounded-lg py-2 px-3 text-white">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-neutral-400 mb-1 font-bold">预估造价</label>
+                            <input type="text" id="edit-case-cost" class="w-full bg-neutral-800 border border-neutral-700 rounded-lg py-2 px-3 text-white">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 text-xs">
+                        <div>
+                            <label class="block text-[11px] text-neutral-400 mb-1 font-bold">交付周期</label>
+                            <input type="text" id="edit-case-duration" class="w-full bg-neutral-800 border border-neutral-700 rounded-lg py-2 px-3 text-white">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-neutral-400 mb-1 font-bold">执行部门</label>
+                            <input type="text" id="edit-case-designer" class="w-full bg-neutral-800 border border-neutral-700 rounded-lg py-2 px-3 text-white animate-pulse">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] text-neutral-400 mb-1 font-bold">副标题简述说明</label>
+                        <input type="text" id="edit-case-subtitle" class="w-full bg-neutral-800 border border-neutral-700 rounded-lg py-2 px-3 text-white text-xs">
+                    </div>
+
+                    <!-- ✨ AI 自动撰写美学说明 -->
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="block text-[11px] text-neutral-400 font-bold">精装设计理念文案</label>
+                            <button onclick="generateAICaseDescription()" class="text-[10px] text-emerald-400 hover:text-emerald-500 font-bold flex items-center gap-1">
+                                <i class="fa-solid fa-wand-magic-sparkles text-[9px]"></i>
+                                <span>✨ AI 智能撰写</span>
+                            </button>
+                        </div>
+                        <textarea id="edit-case-desc" rows="3" class="w-full bg-neutral-800 border border-neutral-700 rounded-lg py-2 px-3 text-white text-xs"></textarea>
+                    </div>
+
+                    <button onclick="saveCaseParametersFromForm()" class="w-full py-3 bg-gold-500 hover:bg-gold-600 text-white rounded-lg text-xs font-semibold tracking-wider transition-colors shadow-lg flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-save"></i>
+                        <span>更新案例信息并渲染</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部 -->
+    <footer class="bg-neutral-950 text-neutral-400 py-12 border-t border-neutral-900 print-hidden">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6 text-sm">
+            <div class="flex items-center gap-2">
+                <span class="font-serif text-lg tracking-widest font-semibold text-white">马到设计精装部<span class="text-gold-500">.</span></span>
+                <span>© 2026 马到设计精装部. All rights reserved.</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 脚本逻辑 -->
+    <script>
+        // 全局案例数据库 // PROJECT_DB
+        let projectDatabase = [
+            {
+                id: "case-01",
+                title: "马到设计精装部 · 山海意奢",
+                subtitle: "意式精装项目作品",
+                tag: "都市大平层精装",
+                style: "都市轻奢",
+                area: "180㎡",
+                cost: "￥45万起",
+                duration: "60天",
+                designer: "执行：马到设计精装部",
+                desc: "科学分配硬装及定制预算，利用高集成性价比供应链、微小缝精细收口木饰面及高显指无主灯，打造极富意式质感的高落地还原度空间。",
+                blueprints: [
+                    "https://images.unsplash.com/photo-1545464693-f1798a373343?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1581094288338-2314dddb7eed?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=format&fit=crop&w=600&q=80"
+                ],
+                renderings: [
+                    "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=80"
+                ],
+                reals: [
+                    "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1617806118233-18e1db207f62?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1616046229478-9901c5536a45?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=600&q=80"
+                ]
+            },
+            {
+                id: "case-02",
+                title: "马到设计精装部 · 静谧侘寂",
+                subtitle: "自然极简暖灰精装作品",
+                tag: "独栋叠拼精装",
+                style: "东方雅境",
+                area: "130㎡",
+                cost: "￥28万起",
+                duration: "45天",
+                designer: "执行：马到设计精装部",
+                desc: "以大厂高环保水性墙面漆调出质朴暖灰底色，无缝接入天然暖调山纹生态板定制。在一呼一吸间享受精装带来的归家松弛感。",
+                blueprints: [
+                    "https://images.unsplash.com/photo-1545464693-f1798a373343?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1581094288338-2314dddb7eed?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=format&fit=crop&w=600&q=80"
+                ],
+                renderings: [
+                    "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=600&q=80"
+                ],
+                reals: [
+                    "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1617806118233-18e1db207f62?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1616046229478-9901c5536a45?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=80"
+                ]
+            },
+            {
+                id: "case-03",
+                title: "马到设计精装部 · 浪漫巴黎",
+                subtitle: "法式复古现代精装作品",
+                tag: "洋房复式精装",
+                style: "暖白法式",
+                area: "160㎡",
+                cost: "￥38万起",
+                duration: "50+天",
+                designer: "执行：马到设计精装部",
+                desc: "改装传统复杂石膏花，精简墙面线条并保留现代家具质感。利用恰到好处的黄铜细节，重塑精装特有的浪漫都市格调。",
+                blueprints: [
+                    "https://images.unsplash.com/photo-1545464693-f1798a373343?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1581094288338-2314dddb7eed?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=format&fit=crop&w=600&q=80"
+                ],
+                renderings: [
+                    "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1617806118233-18e1db207f62?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1616046229478-9901c5536a45?auto=format&fit=crop&w=600&q=80"
+                ],
+                reals: [
+                    "https://images.unsplash.com/photo-1617806118233-18e1db207f62?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1616046229478-9901c5536a45?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=600&q=80"
+                ]
+            },
+            {
+                id: "case-04",
+                title: "马到设计精装部 · 暮色金华",
+                subtitle: "轻奢金华精装项目",
+                tag: "联排别墅精装",
+                style: "无界美学",
+                area: "150㎡",
+                cost: "￥35万起",
+                duration: "55天",
+                designer: "执行：马到设计精装部",
+                desc: "采用深邃岩板作为大底，配合黑哑光漆面与精密钛金线条点缀，实现兼具高工期保障与非凡美感的重力美学精装。",
+                blueprints: [
+                    "https://images.unsplash.com/photo-1545464693-f1798a373343?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1581094288338-2314dddb7eed?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=format&fit=crop&w=600&q=80"
+                ],
+                renderings: [
+                    "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1617806118233-18e1db207f62?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1616046229478-9901c5536a45?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=format&fit=crop&w=600&q=80"
+                ],
+                reals: [
+                    "https://images.unsplash.com/photo-1616046229478-9901c5536a45?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=80"
+                ]
+            },
+            {
+                id: "case-05",
+                title: "马到设计精装部 · 沐光奶油",
+                subtitle: "温馨极简奶油精装作品",
+                tag: "全屋高标准环保精装",
+                style: "极简主义",
+                area: "110㎡",
+                cost: "￥20万起",
+                duration: "40天",
+                designer: "执行：马到设计精装部",
+                desc: "大面积采用珍珠暖白艺术墙涂、奶咖基色配色及圆润的一体化定制家具弧度，为年轻三口之家打造触感柔软的奶油风乐园。",
+                blueprints: [
+                    "https://images.unsplash.com/photo-1545464693-f1798a373343?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1581094288338-2314dddb7eed?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=format&fit=crop&w=600&q=80"
+                ],
+                renderings: [
+                    "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1617806118233-18e1db207f62?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1616046229478-9901c5536a45?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=600&q=80"
+                ],
+                reals: [
+                    "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=80"
+                ]
+            },
+            {
+                id: "case-06",
+                title: "马到设计精装部 · 未来无界",
+                subtitle: "轻工业极简精装作品",
+                tag: "极简Loft精装",
+                style: "无界美学",
+                area: "140㎡",
+                cost: "￥32万起",
+                duration: "50天",
+                designer: "执行：马到设计精装部",
+                desc: "保留原始建筑挑高及局部裸露的水泥梁柱，大面积运用拉丝不锈钢定制件、夹丝安全玻璃隔断，用超优预算造就超未来的前卫居所。",
+                blueprints: [
+                    "https://images.unsplash.com/photo-1545464693-f1798a373343?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1581094288338-2314dddb7eed?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=crop&w=600&q=80"
+                ],
+                renderings: [
+                    "https://images.unsplash.com/photo-1617806118233-18e1db207f62?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1616046229478-9901c5536a45?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=80"
+                ],
+                reals: [
+                    "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1617806118233-18e1db207f62?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1616046229478-9901c5536a45?auto=format&fit=crop&w=600&q=80"
+                ]
+            }
+        ]; // PROJECT_DB
+
+        // 新建：已保存工程预算单本地持久化数据库 // SAVED_QUOTES_DB
+        let savedQuotesDatabase = []; // SAVED_QUOTES_DB
+
+        // 当前激活物理页面：cases (案例) / calculator (计算器) / saved (保存项目)
+        let activePage = 'cases';
+        
+        let activeCaseIndex = 0;
+        let activeGalleryTab = 'blueprints';
+
+        // 本地图片上传状态
+        let uploadTargetInfo = {
+            caseIndex: 0,
+            tab: 'blueprints',
+            imgIndex: 0
+        };
+
+        // 运行时报价状态 与 实际决算支出状态
+        let runtimeCosts = {};
+        let runtimeActualCosts = {}; 
+        let runtimeEnabled = {};
+        let quoteViewMode = 'client'; 
+
+        // 灯箱
+        let currentLightboxIndex = 0;
+        let lightboxImagesList = [];
+
+        // 用于明细查看器的高级状态 (用于暂存弹出框中直接改写的临时数值)
+        let activeInspectorQuoteId = null;
+        let tempInspectorCosts = {}; 
+
+        // 24 项主干工项默认配置
+        const baseArea = 90;
+        const baseItems = [
+            { id: "sand", name: "水泥沙子辅料", base: 3000.00, formula: "area * 33.33", scale: "area", isMaterial: true, group: "basic" },
+            { id: "demolition", name: "拆除清运工程", base: 300.00, formula: "area * 15", scale: "fixed", isMaterial: false, group: "basic", defaultChecked: true },
+            { id: "heating", name: "地暖铺设施工", base: 13500.00, formula: "area * 150", scale: "area", isMaterial: true, group: "main", defaultChecked: false }, 
+            { id: "windows", name: "封窗更换工程", base: 6000.00, formula: "area * 66.67", scale: "fixed", isMaterial: true, group: "main", defaultChecked: true }, 
+            { id: "airConditioning", name: "空调系统工程", base: 16200.00, formula: "area * 180", scale: "area", isMaterial: true, group: "main", defaultChecked: false }, 
+            { id: "waterPurifier", name: "净水系统选配", base: 4500.00, formula: "4500", scale: "fixed", isMaterial: true, group: "main", defaultChecked: false }, 
+            { id: "elecMaterial", name: "弱电强辅辅料", base: 4335.00, formula: "area * 48.17", scale: "area", isMaterial: true, group: "basic" },
+            { id: "elecLabor", name: "水电施工工资", base: 3625.20, formula: "area * 40.28", scale: "area", isMaterial: false, group: "basic" },
+            { id: "carpenterMaterial", name: "石膏龙骨板材", base: 2532.00, formula: "area * 28.13", scale: "area", isMaterial: true, group: "basic" },
+            { id: "carpenterLabor", name: "吊顶木工工资", base: 4250.00, formula: "area * 47.22", scale: "area", isMaterial: false, group: "basic" },
+            { id: "masonLabor", name: "贴砖找平泥工", base: 9600.00, formula: "area * 106.67", scale: "area", isMaterial: false, group: "basic" },
+            { id: "tile", name: "陶瓷地砖材料", base: 4880.30, formula: "area * 54.23 * style", scale: "area", isMaterial: true, group: "main" },
+            { id: "puttyMaterial", name: "腻子粉刷辅料", base: 1060.00, formula: "area * 11.78", scale: "area", isMaterial: true, group: "basic" },
+            { id: "puttyLabor", name: "油漆涂刷工资", base: 4993.00, formula: "area * 55.48", scale: "area", isMaterial: false, group: "basic" },
+            { id: "floorSkirt", name: "木地板踢脚线", base: 2717.00, formula: "area * 30.19 * style", scale: "area", isMaterial: true, group: "main" },
+            { id: "door", name: "实木静音室内门", base: 3900.00, formula: "area * 43.33 * style", scale: "area", isMaterial: true, group: "main" }, 
+            { id: "customCabinets", name: "全屋高定柜体", base: 17000.00, formula: "area * 188.89 * style", scale: "area_high", isMaterial: true, group: "main" },
+            { id: "rockPlate", name: "台面岩板工程", base: 1900.00, formula: "1900", scale: "fixed", isMaterial: true, group: "main" },
+            { id: "paint", name: "墙面艺术艺术漆", base: 4700.00, formula: "area * 52.22 * style", scale: "area", isMaterial: true, group: "main" },
+            { id: "sofaFurniture", name: "家具沙发窗帘", base: 17558.09, formula: "area * 195.09 * style", scale: "area_high", isMaterial: true, group: "furnish" },
+            { id: "curtains", name: "高遮光窗帘工程", base: 1764.40, formula: "area * 19.60", scale: "area", isMaterial: true, group: "furnish" },
+            { id: "grouting", name: "美缝施工材料", base: 1500.00, formula: "area * 16.67", scale: "area", isMaterial: true, group: "basic", defaultChecked: false }, 
+            { id: "miscellaneous", name: "垃圾清运工程保护", base: 3521.00, formula: "3521", scale: "fixed", isMaterial: false, group: "furnish" },
+            { id: "profit", name: "精装部基本利润", base: 10000.00, formula: "10000", scale: "fixed", isMaterial: false, group: "furnish" }
+        ];
+
+        const groupNames = {
+            basic: "基础施工与辅材人工",
+            main: "饰面主材与定制工程",
+            furnish: "家具软装与部门利润"
+        };
+
+        // 【自动容灾】本地核心数据同步模块
+        function syncToLocalStorage() {
+            try {
+                localStorage.setItem('MADAO_PROJECT_DB', JSON.stringify(projectDatabase));
+                localStorage.setItem('MADAO_SAVED_QUOTES_DB', JSON.stringify(savedQuotesDatabase));
+            } catch (e) {
+                console.error("本地缓存容灾写入失败:", e);
+            }
+        }
+
+        // 【自动容灾】本地工作暂存盘同步模块
+        function syncPlaygroundToLocalStorage() {
+            try {
+                const playground = {
+                    area: document.getElementById('calc-area').value,
+                    style: document.getElementById('calc-style').value,
+                    runtimeCosts: runtimeCosts,
+                    runtimeActualCosts: runtimeActualCosts,
+                    runtimeEnabled: runtimeEnabled,
+                    formulas: baseItems.map(item => ({ id: item.id, formula: item.formula }))
+                };
+                localStorage.setItem('MADAO_PLAYGROUND_STATE', JSON.stringify(playground));
+            } catch (e) {
+                console.error("暂存工作台缓存失败:", e);
+            }
+        }
+
+        // 页面启动与数据库初始化
+        window.onload = function() {
+            // --- 自动容灾核心：首要加载本地缓存最新进度 ---
+            try {
+                const localProjectDb = localStorage.getItem('MADAO_PROJECT_DB');
+                if (localProjectDb) {
+                    projectDatabase = JSON.parse(localProjectDb);
+                }
+                const localSavedQuotesDb = localStorage.getItem('MADAO_SAVED_QUOTES_DB');
+                if (localSavedQuotesDb) {
+                    savedQuotesDatabase = JSON.parse(localSavedQuotesDb);
+                }
+            } catch (e) {
+                console.error("读取缓存容灾数据失败，采用文件默认值", e);
+            }
+
+            // 初始化默认日期
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            document.getElementById('quote-date').textContent = `日期: ${yyyy}-${mm}-${dd}`;
+
+            const randomNum = Math.floor(Math.random() * 9000 + 1000);
+            document.getElementById('quote-number').textContent = `预估单号: MD-${yyyy}${mm}${dd}-${randomNum}`;
+
+            // 初始化各子项选配启用开关状态
+            baseItems.forEach(item => {
+                runtimeEnabled[item.id] = (item.defaultChecked !== undefined) ? item.defaultChecked : true;
+            });
+
+            // --- 自动容灾核心：复原工作暂存盘 ---
+            let hasCachePlayground = false;
+            try {
+                const localPlayground = localStorage.getItem('MADAO_PLAYGROUND_STATE');
+                if (localPlayground) {
+                    const pg = JSON.parse(localPlayground);
+                    if (pg.area) document.getElementById('calc-area').value = pg.area;
+                    if (pg.style) document.getElementById('calc-style').value = pg.style;
+                    if (pg.runtimeCosts) runtimeCosts = pg.runtimeCosts;
+                    if (pg.runtimeActualCosts) runtimeActualCosts = pg.runtimeActualCosts;
+                    if (pg.runtimeEnabled) runtimeEnabled = pg.runtimeEnabled;
+                    if (pg.formulas) {
+                        pg.formulas.forEach(f => {
+                            const matched = baseItems.find(i => i.id === f.id);
+                            if (matched) matched.formula = f.formula;
+                        });
+                    }
+                    hasCachePlayground = true;
+                }
+            } catch (e) {
+                console.error("加载工作暂存盘失败:", e);
+            }
+
+            renderCaseSelectors();
+            renderActiveCaseDetails();
+            renderGalleryGrid();
+            loadCaseToCustomizerForm();
+
+            if (hasCachePlayground) {
+                calculateCosts('cache'); // 仅作重绘不覆盖缓存
+            } else {
+                calculateCosts('system');
+            }
+
+            renderSavedQuotesGrid();
+            updateSavedBadgesCount();
+
+            // 路由定位到首页面案例馆
+            switchView('cases');
+
+            // 键盘与滑动手势监听
+            window.addEventListener('keydown', (e) => {
+                const modal = document.getElementById('lightbox-modal');
+                if (modal && !modal.classList.contains('hidden')) {
+                    if (e.key === 'ArrowRight') nextLightboxImage();
+                    if (e.key === 'ArrowLeft') prevLightboxImage();
+                    if (e.key === 'Escape') closeLightbox();
+                }
+            });
+
+            let touchStartX = 0;
+            let touchEndX = 0;
+            const lightboxModal = document.getElementById('lightbox-modal');
+            lightboxModal.addEventListener('touchstart', e => {
+                touchStartX = e.changedTouches[0].screenX;
+            }, { passive: true });
+            lightboxModal.addEventListener('touchend', e => {
+                touchEndX = e.changedTouches[0].screenX;
+                if (touchEndX < touchStartX - 50) nextLightboxImage();
+                if (touchEndX > touchStartX + 50) prevLightboxImage();
+            }, { passive: true });
+        };
+
+        /**
+         * 页面级视图物理切换调度中心 (支持三页面完全解耦)
+         */
+        function switchView(viewName) {
+            activePage = viewName;
+            
+            const casesView = document.getElementById('view-cases');
+            const calcView = document.getElementById('view-calculator');
+            const savedView = document.getElementById('view-saved');
+
+            const navCases = document.getElementById('nav-btn-cases');
+            const navCalc = document.getElementById('nav-btn-calculator');
+            const navSaved = document.getElementById('nav-btn-saved');
+
+            const mobileNavCases = document.getElementById('mobile-nav-btn-cases');
+            const mobileNavCalc = document.getElementById('mobile-nav-btn-calculator');
+            const mobileNavSaved = document.getElementById('mobile-nav-btn-saved');
+
+            // 页面显隐
+            casesView.classList.add('hidden-view'); casesView.classList.remove('active-view');
+            calcView.classList.add('hidden-view'); calcView.classList.remove('active-view');
+            savedView.classList.add('hidden-view'); savedView.classList.remove('active-view');
+
+            // 经典复原所有标签类名
+            navCases.className = "px-6 py-2.5 rounded-full transition-all duration-200 flex items-center gap-2 text-neutral-500 hover:text-onyx";
+            navCalc.className = "px-6 py-2.5 rounded-full transition-all duration-200 flex items-center gap-2 text-neutral-500 hover:text-onyx";
+            navSaved.className = "px-6 py-2.5 rounded-full transition-all duration-200 flex items-center gap-2 text-neutral-500 hover:text-onyx relative";
+
+            mobileNavCases.className = "text-left w-full px-4 py-3 rounded-lg text-neutral-600 flex items-center gap-2";
+            mobileNavCalc.className = "text-left w-full px-4 py-3 rounded-lg text-neutral-600 flex items-center gap-2";
+            mobileNavSaved.className = "text-left w-full px-4 py-3 rounded-lg text-neutral-600 flex items-center gap-2 justify-between";
+
+            if (viewName === 'cases') {
+                casesView.classList.remove('hidden-view');
+                casesView.classList.add('active-view');
+                navCases.className = "px-6 py-2.5 rounded-full transition-all duration-200 flex items-center gap-2 bg-white text-onyx shadow-sm";
+                mobileNavCases.className = "text-left w-full px-4 py-3 rounded-lg bg-gold-50 text-gold-700 flex items-center gap-2 font-semibold";
+            } else if (viewName === 'calculator') {
+                calcView.classList.remove('hidden-view');
+                calcView.classList.add('active-view');
+                navCalc.className = "px-6 py-2.5 rounded-full transition-all duration-200 flex items-center gap-2 bg-white text-onyx shadow-sm";
+                mobileNavCalc.className = "text-left w-full px-4 py-3 rounded-lg bg-emerald-50 text-emerald-700 flex items-center gap-2 font-semibold";
+            } else if (viewName === 'saved') {
+                savedView.classList.remove('hidden-view');
+                savedView.classList.add('active-view');
+                navSaved.className = "px-6 py-2.5 rounded-full transition-all duration-200 flex items-center gap-2 bg-white text-onyx shadow-sm relative";
+                mobileNavSaved.className = "text-left w-full px-4 py-3 rounded-lg bg-gold-100/50 text-gold-800 flex items-center gap-2 justify-between font-semibold";
+                renderSavedQuotesGrid();
+            }
+
+            // 平滑滚回顶层，消除长页面滚屏记忆
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        /**
+         * 切换 报价展现视图 vs 决算盈亏核算模式
+         */
+        function setQuoteViewMode(mode) {
+            quoteViewMode = mode;
+            
+            const btnClient = document.getElementById('mode-btn-client');
+            const btnProfit = document.getElementById('mode-btn-profit');
+            const profitHelper = document.getElementById('profit-management-helper');
+
+            // 切换特定 Badge、标题与副标题，体现极致仪式感
+            const subtitleEl = document.getElementById('quote-card-subtitle');
+            const titleEl = document.getElementById('quote-card-title');
+            const badgeEl = document.getElementById('quote-card-badge');
+
+            if (mode === 'client') {
+                btnClient.className = "px-4 py-1.5 rounded-lg transition-all duration-200 flex items-center gap-1.5 bg-white text-onyx shadow-sm";
+                btnProfit.className = "px-4 py-1.5 rounded-lg transition-all duration-200 flex items-center gap-1.5 text-neutral-500 hover:text-onyx";
+                profitHelper.classList.add('hidden');
+
+                subtitleEl.textContent = "OFFICIAL BUDGET INVOICE";
+                titleEl.textContent = "马到设计精装部 · 工程预算单";
+                badgeEl.innerHTML = `<i class="fa-solid fa-check-double mr-1 text-[10px]"></i>已选配工程实时汇总`;
+            } else {
+                btnProfit.className = "px-4 py-1.5 rounded-lg transition-all duration-200 flex items-center gap-1.5 bg-white text-onyx shadow-sm";
+                btnClient.className = "px-4 py-1.5 rounded-lg transition-all duration-200 flex items-center gap-1.5 text-neutral-500 hover:text-onyx";
+                profitHelper.classList.remove('hidden');
+
+                subtitleEl.textContent = "INTERNAL PROFIT & LOSS CONTROL";
+                titleEl.textContent = "马到设计精装部 · 内部盈亏决算表";
+                badgeEl.innerHTML = `<i class="fa-solid fa-shield-halved mr-1 text-[10px]"></i>内部毛利与决算跟踪模式`;
+            }
+
+            renderRightQuoteTable();
+        }
+
+        /**
+         * 一键同步当前预算至决算实际花费 (减少重复填写的神级体验)
+         */
+        function syncAllActualCostsToBudget() {
+            baseItems.forEach(item => {
+                runtimeActualCosts[item.id] = runtimeCosts[item.id] || 0;
+            });
+            renderRightQuoteTable();
+            showGlobalToast("决算数据对齐成功！您可以直接修改产生偏差的单项支出。", "success");
+        }
+
+        /**
+         * 实际决算金额微调改写
+         */
+        function updateActualCost(itemId, rawValue) {
+            const val = parseFloat(rawValue) || 0;
+            runtimeActualCosts[itemId] = val;
+            renderRightQuoteTable();
+        }
+
+        /**
+         * 唤起无阻塞的高保真保存预算弹窗
+         */
+        function openSaveQuoteModal() {
+            const area = document.getElementById('calc-area').value;
+            const styleSelect = document.getElementById('calc-style');
+            const styleName = styleSelect.options[styleSelect.selectedIndex].text;
+            const finalTotal = document.getElementById('quote-final-total').textContent;
+
+            document.getElementById('save-preview-area').textContent = area;
+            document.getElementById('save-preview-style').textContent = styleName;
+            document.getElementById('save-preview-total').textContent = finalTotal;
+
+            // 清空旧数据
+            document.getElementById('save-client-name').value = '';
+            document.getElementById('save-client-phone').value = '';
+            document.getElementById('save-client-remarks').value = '';
+
+            document.getElementById('save-quote-modal').classList.remove('hidden');
+        }
+
+        function closeSaveQuoteModal() {
+            document.getElementById('save-quote-modal').classList.add('hidden');
+        }
+
+        /**
+         * 将当前调配完好的数据推入已保存历史数据库，实现精细化归档
+         */
+        function submitSaveQuote() {
+            const nameInput = document.getElementById('save-client-name').value.trim();
+            if (!nameInput) {
+                showGlobalToast("请填写业主姓名或项目名称作为检索标识", "info");
+                return;
+            }
+
+            const area = parseFloat(document.getElementById('calc-area').value) || 90;
+            const styleSelect = document.getElementById('calc-style');
+            const styleValue = styleSelect.value;
+            const styleName = styleSelect.options[styleSelect.selectedIndex].text;
+
+            const finalTotal = document.getElementById('quote-final-total').textContent;
+            const quoteNum = document.getElementById('quote-number').textContent;
+            const quoteDate = document.getElementById('quote-date').textContent;
+
+            const phone = document.getElementById('save-client-phone').value.trim();
+            const remarks = document.getElementById('save-client-remarks').value.trim();
+
+            // 打包数据进行完全解耦深度克隆
+            const newQuote = {
+                id: "quote-" + Date.now(),
+                clientName: nameInput,
+                clientPhone: phone || "暂无电话",
+                remarks: remarks || "暂无工项备注",
+                quoteNumber: quoteNum,
+                quoteDate: quoteDate,
+                area: area,
+                styleValue: styleValue,
+                styleName: styleName,
+                grandTotal: finalTotal,
+                timestamp: new Date().toLocaleString('zh-CN', { hour12: false }),
+                runtimeCosts: JSON.parse(JSON.stringify(runtimeCosts)),
+                runtimeActualCosts: JSON.parse(JSON.stringify(runtimeActualCosts)), // 同步保存实际支出
+                runtimeEnabled: JSON.parse(JSON.stringify(runtimeEnabled)),
+                formulas: baseItems.map(item => ({ id: item.id, formula: item.formula }))
+            };
+
+            // 塞入持久化数组
+            savedQuotesDatabase.unshift(newQuote);
+
+            // --- 自动容灾触发 ---
+            syncToLocalStorage();
+
+            // 更新红点及列表
+            updateSavedBadgesCount();
+            closeSaveQuoteModal();
+            showGlobalToast(`成功！已将「${nameInput}」的工程测算决算单归档`, "success");
+
+            // 切换到已保存区块供设计师过目
+            setTimeout(() => {
+                switchView('saved');
+            }, 500);
+        }
+
+        /**
+         * 唤起已保存预算决算明细弹出框 (并排直观展现预算、决算与盈亏偏差，支持即时修改实际开支)
+         */
+        function openSavedQuoteInspector(id) {
+            const quote = savedQuotesDatabase.find(q => q.id === id);
+            if (!quote) return;
+
+            activeInspectorQuoteId = id;
+
+            // 1. 深拷贝当前选配单的实际决算开支到临时变量
+            tempInspectorCosts = {};
+            baseItems.forEach(item => {
+                const isEnabled = quote.runtimeEnabled[item.id] !== false;
+                if (isEnabled) {
+                    tempInspectorCosts[item.id] = (quote.runtimeActualCosts && quote.runtimeActualCosts[item.id] !== undefined)
+                        ? quote.runtimeActualCosts[item.id]
+                        : (quote.runtimeCosts[item.id] || 0);
+                }
+            });
+
+            // 2. 填充面板数据
+            document.getElementById('inspector-title').textContent = `业主精装决算核对: ${quote.clientName}`;
+            document.getElementById('inspector-subtitle').textContent = `工程单号: ${quote.quoteNumber} | 归档时间: ${quote.timestamp}`;
+            document.getElementById('inspector-meta').textContent = `${quote.area} ㎡ | ${quote.styleName}`;
+            document.getElementById('inspector-remarks').textContent = `备注: ${quote.remarks || "暂无备注"}`;
+            
+            // 3. 重置检索框
+            document.getElementById('inspector-item-search').value = '';
+
+            // 4. 绑定底部的载入到测算面板修改按钮
+            const loadBtn = document.getElementById('inspector-load-btn');
+            loadBtn.onclick = function() {
+                loadSavedQuoteToCalculator(id);
+                closeSavedQuoteInspector();
+            };
+
+            // 5. 唤起 Modal 并渲染明细行与总看板数值
+            document.getElementById('inspector-modal').classList.remove('hidden');
+            recalcAndRenderInspector();
+        }
+
+        function closeSavedQuoteInspector() {
+            document.getElementById('inspector-modal').classList.add('hidden');
+            activeInspectorQuoteId = null;
+            tempInspectorCosts = {};
+        }
+
+        function filterInspectorItems() {
+            recalcAndRenderInspector();
+        }
+
+        /**
+         * 重新汇总并更新决算弹窗内部各项数值和列表
+         */
+        function recalcAndRenderInspector() {
+            if (!activeInspectorQuoteId) return;
+            const quote = savedQuotesDatabase.find(q => q.id === activeInspectorQuoteId);
+            if (!quote) return;
+
+            const searchQuery = document.getElementById('inspector-item-search').value.trim().toLowerCase();
+            const tbody = document.getElementById('inspector-items-tbody');
+            tbody.innerHTML = '';
+
+            let totalBudget = 0;
+            let totalActual = 0;
+            let matchedCount = 0;
+
+            baseItems.forEach(item => {
+                const isEnabled = quote.runtimeEnabled[item.id] !== false;
+                if (isEnabled) {
+                    const budget = quote.runtimeCosts[item.id] || 0;
+                    const actual = tempInspectorCosts[item.id] !== undefined ? tempInspectorCosts[item.id] : budget;
+
+                    totalBudget += budget;
+                    totalActual += actual;
+
+                    const itemName = item.name;
+                    // 检索词过滤
+                    if (searchQuery && !itemName.toLowerCase().includes(searchQuery)) {
+                        return;
+                    }
+
+                    matchedCount++;
+                    const diff = budget - actual;
+                    let diffHTML = "";
+                    if (diff > 0) {
+                        diffHTML = `<span class="text-emerald-600 font-bold"><i class="fa-solid fa-caret-up"></i> 节省 ¥${diff.toFixed(2)}</span>`;
+                    } else if (diff < 0) {
+                        diffHTML = `<span class="text-red-500 font-bold"><i class="fa-solid fa-caret-down"></i> 超支 ¥${Math.abs(diff).toFixed(2)}</span>`;
+                    } else {
+                        diffHTML = `<span class="text-neutral-400">平衡</span>`;
+                    }
+
+                    const formulaObj = quote.formulas.find(f => f.id === item.id);
+                    const formulaStr = formulaObj ? formulaObj.formula : item.formula;
+
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-neutral-50/50 transition-colors text-xs';
+                    row.innerHTML = `
+                        <td class="py-2.5 px-4 font-bold text-neutral-800">
+                            <div>${itemName}</div>
+                            <div class="text-[9px] text-neutral-400 font-mono font-normal">公式: ${formulaStr}</div>
+                        </td>
+                        <td class="py-2.5 px-4 text-right text-neutral-600">¥ ${budget.toFixed(2)}</td>
+                        <td class="py-2.5 px-4 text-right">
+                            <div class="relative inline-block w-28 text-left">
+                                <span class="absolute left-1.5 top-1/2 -translate-y-1/2 text-[9px] text-neutral-400 font-bold">¥</span>
+                                <input type="number" step="0.01" value="${actual.toFixed(2)}"
+                                       oninput="updateTempInspectorCost('${item.id}', this.value)"
+                                       class="w-full text-right bg-neutral-50 focus:bg-white border border-neutral-200 focus:border-emerald-500 rounded pl-4 pr-1.5 py-1 text-[11px] font-bold text-onyx outline-none transition-all">
+                            </div>
+                        </td>
+                        <td class="py-2.5 px-4 text-right">${diffHTML}</td>
+                    `;
+                    tbody.appendChild(row);
+                }
+            });
+
+            if (matchedCount === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="py-10 text-center text-neutral-400 italic">
+                            未找到符合关键字「${searchQuery}」的项目
+                        </td>
+                    </tr>
+                `;
+            }
+
+            // 更新弹窗头部的多维统计小看板
+            const netPL = totalBudget - totalActual;
+            document.getElementById('inspector-budget-total').textContent = `¥ ${totalBudget.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            document.getElementById('inspector-actual-total').textContent = `¥ ${totalActual.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            
+            const profitEl = document.getElementById('inspector-profit-total');
+            if (netPL >= 0) {
+                profitEl.className = "font-bold text-emerald-600 block text-xs";
+                profitEl.innerHTML = `<i class="fa-solid fa-square-trend-up text-emerald-500 mr-1"></i> 节省 ¥ ${netPL.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            } else {
+                profitEl.className = "font-bold text-red-500 block text-xs";
+                profitEl.innerHTML = `<i class="fa-solid fa-square-trend-down text-red-500 mr-1"></i> 超支 ¥ ${Math.abs(netPL).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            }
+        }
+
+        /**
+         * 极速更新单行决算差额以避开频繁重绘导致的 Input Focus 丢失
+         */
+        function updateTempInspectorCost(itemId, val) {
+            const costValue = parseFloat(val) || 0;
+            tempInspectorCosts[itemId] = costValue;
+
+            if (!activeInspectorQuoteId) return;
+            const quote = savedQuotesDatabase.find(q => q.id === activeInspectorQuoteId);
+            if (!quote) return;
+
+            // 1. 快速重绘头部统计卡，防止输入框丢失焦点
+            let totalBudget = 0;
+            let totalActual = 0;
+            baseItems.forEach(item => {
+                const isEnabled = quote.runtimeEnabled[item.id] !== false;
+                if (isEnabled) {
+                    totalBudget += quote.runtimeCosts[item.id] || 0;
+                    totalActual += tempInspectorCosts[item.id] !== undefined ? tempInspectorCosts[item.id] : (quote.runtimeCosts[item.id] || 0);
+                }
+            });
+
+            const netPL = totalBudget - totalActual;
+            document.getElementById('inspector-budget-total').textContent = `¥ ${totalBudget.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            document.getElementById('inspector-actual-total').textContent = `¥ ${totalActual.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            
+            const profitEl = document.getElementById('inspector-profit-total');
+            if (netPL >= 0) {
+                profitEl.className = "font-bold text-emerald-600 block text-xs";
+                profitEl.innerHTML = `<i class="fa-solid fa-square-trend-up text-emerald-500 mr-1"></i> 节省 ¥ ${netPL.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            } else {
+                profitEl.className = "font-bold text-red-500 block text-xs";
+                profitEl.innerHTML = `<i class="fa-solid fa-square-trend-down text-red-500 mr-1"></i> 超支 ¥ ${Math.abs(netPL).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            }
+
+            // 2. 精确计算并更新当前行最右侧的偏差列文本
+            const budget = quote.runtimeCosts[itemId] || 0;
+            const actual = tempInspectorCosts[itemId];
+            const diff = budget - actual;
+
+            let diffHTML = "";
+            if (diff > 0) {
+                diffHTML = `<span class="text-emerald-600 font-bold"><i class="fa-solid fa-caret-up"></i> 节省 ¥${diff.toFixed(2)}</span>`;
+            } else if (diff < 0) {
+                diffHTML = `<span class="text-red-500 font-bold"><i class="fa-solid fa-caret-down"></i> 超支 ¥${Math.abs(diff).toFixed(2)}</span>`;
+            } else {
+                diffHTML = `<span class="text-neutral-400">平衡</span>`;
+            }
+
+            // 寻找当前 input 所在的 tr 的最末个 td 子元素直接赋写
+            const inputEl = document.querySelector(`input[oninput*="updateTempInspectorCost('${itemId}'"]`);
+            if (inputEl) {
+                const tr = inputEl.closest('tr');
+                if (tr && tr.lastElementChild) {
+                    tr.lastElementChild.innerHTML = diffHTML;
+                }
+            }
+        }
+
+        /**
+         * 独立保存：不载入主面板，直接一键将弹窗内的实际修改覆写存储进底层数据库
+         */
+        function saveInspectorActualCosts() {
+            if (!activeInspectorQuoteId) return;
+            const quoteIndex = savedQuotesDatabase.findIndex(q => q.id === activeInspectorQuoteId);
+            if (quoteIndex === -1) return;
+
+            // 深度更新对应的实际开支
+            savedQuotesDatabase[quoteIndex].runtimeActualCosts = JSON.parse(JSON.stringify(tempInspectorCosts));
+
+            // --- 自动容灾触发 ---
+            syncToLocalStorage();
+
+            // 实时刷新历史网格看板
+            renderSavedQuotesGrid();
+            updateSavedBadgesCount();
+
+            showGlobalToast(`决算数据已更新！业主「${savedQuotesDatabase[quoteIndex].clientName}」实际支出已保存。`, "success");
+            closeSavedQuoteInspector();
+        }
+
+        /**
+         * 重新装载历史方案至测算面板并瞬间触发重绘 (保留供需要进行预算微调的设计师二次使用)
+         */
+        function loadSavedQuoteToCalculator(id) {
+            const target = savedQuotesDatabase.find(q => q.id === id);
+            if (!target) return;
+
+            // 1. 复写全局属性
+            document.getElementById('calc-area').value = target.area;
+            document.getElementById('calc-style').value = target.styleValue;
+
+            // 2. 复写子工项公式
+            target.formulas.forEach(f => {
+                const matched = baseItems.find(i => i.id === f.id);
+                if (matched) {
+                    matched.formula = f.formula;
+                }
+            });
+
+            // 3. 复写具体预算单价 与 实际决算支出单价
+            runtimeCosts = JSON.parse(JSON.stringify(target.runtimeCosts));
+            runtimeActualCosts = target.runtimeActualCosts ? JSON.parse(JSON.stringify(target.runtimeActualCosts)) : {};
+            runtimeEnabled = JSON.parse(JSON.stringify(target.runtimeEnabled));
+
+            // 安全防护：针对没有实际决算开支的旧单，默认对齐其预算金额
+            baseItems.forEach(item => {
+                if (runtimeActualCosts[item.id] === undefined) {
+                    runtimeActualCosts[item.id] = runtimeCosts[item.id] || 0;
+                }
+            });
+
+            // 4. 复写预估发票特定头部
+            document.getElementById('quote-number').textContent = target.quoteNumber;
+            document.getElementById('quote-date').textContent = target.quoteDate;
+
+            // 5. 激发渲染
+            renderLeftConfigPanel();
+            renderRightQuoteTable();
+
+            // 6. 重绘并切页面
+            showGlobalToast(`已将 业主「${target.clientName}」的测算决算复载至工作台！`, "success");
+            switchView('calculator');
+        }
+
+        /**
+         * 已保存档案历史卡片删除
+         */
+        function deleteSavedQuote(id, event) {
+            if (event) event.stopPropagation();
+            savedQuotesDatabase = savedQuotesDatabase.filter(q => q.id !== id);
+            
+            // --- 自动容灾触发 ---
+            syncToLocalStorage();
+            
+            updateSavedBadgesCount();
+            renderSavedQuotesGrid();
+            showGlobalToast("决算单据已从历史柜中移除", "info");
+        }
+
+        /**
+         * 渲染已保存预算单格栅
+         */
+        function renderSavedQuotesGrid() {
+            const container = document.getElementById('saved-quotes-grid');
+            container.innerHTML = '';
+
+            document.getElementById('saved-total-count-text').textContent = savedQuotesDatabase.length;
+
+            if (savedQuotesDatabase.length === 0) {
+                container.className = "flex flex-col items-center justify-center py-20 w-full col-span-3 space-y-4";
+                container.innerHTML = `
+                    <div class="w-16 h-16 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-400 text-xl shadow-inner">
+                        <i class="fa-solid fa-folder-open"></i>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-sm font-semibold text-neutral-600">历史决算档案柜中空空如也</p>
+                        <p class="text-xs text-neutral-400 mt-1">您在“精装报价测算”右侧账单底部点击“保存此全案决算单”后，决算项目会归档于此。</p>
+                    </div>
+                    <button onclick="switchView('calculator')" class="px-5 py-2.5 bg-onyx text-white hover:bg-gold-600 rounded-xl text-xs font-bold transition-all shadow-md">
+                        立即去测算第一单
+                    </button>
+                `;
+                return;
+            }
+
+            container.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full";
+            
+            savedQuotesDatabase.forEach(quote => {
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl border border-neutral-200/80 p-5 shadow-sm hover:shadow-md transition-all relative flex flex-col justify-between group hover:border-gold-500/40";
+                
+                // 自动预先计算该笔历史订单的净盈亏，在格栅卡片中提前剧透项目利润
+                let bTotal = 0;
+                let aTotal = 0;
+                baseItems.forEach(item => {
+                    const isEnabled = quote.runtimeEnabled[item.id] !== false;
+                    if (isEnabled) {
+                        bTotal += quote.runtimeCosts[item.id] || 0;
+                        aTotal += (quote.runtimeActualCosts && quote.runtimeActualCosts[item.id] !== undefined) 
+                            ? quote.runtimeActualCosts[item.id] 
+                            : (quote.runtimeCosts[item.id] || 0);
+                    }
+                });
+                const delta = bTotal - aTotal;
+                let plBadge = "";
+                if (delta > 0) {
+                    plBadge = `<span class="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md"><i class="fa-solid fa-piggy-bank text-[10px] mr-1"></i>决算省 ¥${delta.toFixed(0)}</span>`;
+                } else if (delta < 0) {
+                    plBadge = `<span class="text-[9px] font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded-md"><i class="fa-solid fa-circle-exclamation text-[10px] mr-1"></i>超支 ¥${Math.abs(delta).toFixed(0)}</span>`;
+                } else {
+                    plBadge = `<span class="text-[9px] text-neutral-400 bg-neutral-100 px-2 py-0.5 rounded-md">决算持平</span>`;
+                }
+
+                card.innerHTML = `
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-[9px] px-2 py-0.5 bg-neutral-100 text-neutral-500 font-mono rounded font-semibold tracking-wider">
+                                ${quote.quoteNumber}
+                            </span>
+                            <div class="flex items-center gap-1.5">
+                                ${plBadge}
+                                <button onclick="deleteSavedQuote('${quote.id}', event)" class="text-neutral-400 hover:text-red-500 transition-colors p-1 text-xs" title="删除单据">
+                                    <i class="fa-regular fa-trash-can"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1">
+                            <h4 class="text-sm font-bold text-neutral-800 tracking-wide font-serif truncate" title="${quote.clientName}">
+                                <i class="fa-solid fa-circle-user text-gold-500 mr-1.5 text-xs"></i>${quote.clientName}
+                            </h4>
+                            <p class="text-[10px] text-neutral-400 flex items-center gap-1">
+                                <i class="fa-solid fa-phone text-[8px]"></i> <span>${quote.clientPhone}</span>
+                            </p>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2 py-2 border-t border-b border-neutral-100 text-[11px] text-neutral-600 bg-neutral-50/50 px-2 rounded-lg">
+                            <div>
+                                <span class="text-[9px] text-neutral-400 block mb-0.5">测算面积</span>
+                                <span class="font-bold text-neutral-800">${quote.area} ㎡</span>
+                            </div>
+                            <div>
+                                <span class="text-[9px] text-neutral-400 block mb-0.5">精装风格</span>
+                                <span class="font-bold text-neutral-800 truncate block" title="${quote.styleName}">${quote.styleName}</span>
+                            </div>
+                        </div>
+
+                        <p class="text-[10px] text-neutral-400 leading-normal italic truncate" title="${quote.remarks}">
+                            备注：${quote.remarks}
+                        </p>
+                    </div>
+
+                    <div class="pt-4 mt-4 border-t border-t-neutral-100 flex items-center justify-between">
+                        <div>
+                            <span class="text-[8px] text-neutral-400 block uppercase font-bold tracking-widest">ESTIMATED PRICE</span>
+                            <span class="text-xs font-serif font-bold text-gold-600">${quote.grandTotal}</span>
+                        </div>
+                        <div class="flex gap-1.5">
+                            <button onclick="openSavedQuoteInspector('${quote.id}')" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded-lg transition-all flex items-center gap-1">
+                                <i class="fa-solid fa-magnifying-glass text-[9px]"></i>查看明细
+                            </button>
+                            <button onclick="directPrintSavedQuote('${quote.id}')" class="px-3 py-1.5 border border-neutral-200 hover:border-onyx hover:bg-neutral-50 text-neutral-600 text-[10px] font-bold rounded-lg transition-all">
+                                <i class="fa-solid fa-print"></i> 打印
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        /**
+         * 更新顶栏及抽屉的单据数量红点提示
+         */
+        function updateSavedBadgesCount() {
+            const count = savedQuotesDatabase.length;
+            const badge = document.getElementById('saved-count-badge');
+            const mobileBadge = document.getElementById('mobile-saved-count-badge');
+
+            if (count > 0) {
+                badge.textContent = count;
+                badge.classList.remove('hidden');
+                mobileBadge.textContent = count;
+                mobileBadge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+                mobileBadge.classList.add('hidden');
+            }
+        }
+
+        /**
+         * 针对历史预算直接进行物理打印
+         */
+        function directPrintSavedQuote(id) {
+            loadSavedQuoteToCalculator(id);
+            setTimeout(() => {
+                window.print();
+            }, 600);
+        }
+
+        /**
+         * 跨页面智能传参与联动重算 (案例馆 -> 测算器)
+         */
+        function syncCaseToCalculatorAndNavigate() {
+            const cur = projectDatabase[activeCaseIndex];
+            
+            // 抓取并提取数值
+            const rawArea = parseFloat(cur.area.replace(/[^0-9.]/g, '')) || 90;
+            document.getElementById('calc-area').value = rawArea;
+
+            // 匹配新风格系数并自动点选
+            const styleSelect = document.getElementById('calc-style');
+            if (cur.style.includes('极简') || cur.style.includes('原木') || cur.style.includes('主义')) {
+                styleSelect.value = '1.0'; 
+            } else if (cur.style.includes('法式') || cur.style.includes('暖白')) {
+                styleSelect.value = '1.20'; 
+            } else if (cur.style.includes('东方') || cur.style.includes('雅境') || cur.style.includes('侘寂')) {
+                styleSelect.value = '1.35'; 
+            } else if (cur.style.includes('轻奢') || cur.style.includes('都市')) {
+                styleSelect.value = '1.25'; 
+            } else if (cur.style.includes('无界') || cur.style.includes('极奢') || cur.style.includes('美学')) {
+                styleSelect.value = '1.40';
+            } else {
+                styleSelect.value = '1.0';
+            }
+
+            // 立刻重新根据面积更新系统计算
+            calculateCosts('system');
+
+            // 升起无阻塞的高端通知 Toast
+            showGlobalToast(`成功! 已将「${cur.title.replace('马到设计精装部 · ', '')}」的 ${rawArea}㎡ 与风格同步至预算系统`, 'success');
+
+            // 切换页面
+            setTimeout(() => {
+                switchView('calculator');
+            }, 300);
+        }
+
+        // 统一展示自定义 Toast 替代原生 Alert/Confirm 阻碍浏览器渲染
+        function showGlobalToast(msg, type = 'success') {
+            const toast = document.getElementById('global-toast');
+            const msgEl = document.getElementById('global-toast-msg');
+            const iconEl = document.getElementById('global-toast-icon');
+
+            msgEl.textContent = msg;
+            if (type === 'success') {
+                iconEl.className = "fa-solid fa-circle-check text-emerald-500 text-sm";
+            } else {
+                iconEl.className = "fa-solid fa-circle-info text-gold-500 text-sm";
+            }
+
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3500);
+        }
+
+        // 渲染案例选择按钮
+        function renderCaseSelectors() {
+            const container = document.getElementById('cases-selector-tabs');
+            container.innerHTML = '';
+            
+            projectDatabase.forEach((project, index) => {
+                const isActive = index === activeCaseIndex;
+                const card = document.createElement('button');
+                card.onclick = () => selectCase(index);
+                card.className = `p-4 rounded-xl text-left border transition-all duration-300 ${
+                    isActive 
+                    ? 'bg-onyx text-white border-gold-500 shadow-lg ring-2 ring-gold-500/20' 
+                    : 'bg-white text-neutral-600 border-neutral-200/80 hover:border-gold-500/50 hover:bg-gold-50/10'
+                }`;
+                
+                card.innerHTML = `
+                    <div class="text-[10px] uppercase font-bold tracking-widest ${isActive ? 'text-gold-500' : 'text-neutral-400'}">CASE 0${index + 1}</div>
+                    <div class="text-xs font-semibold truncate mt-1">${project.title.replace('马到设计精装部 · ', '')}</div>
+                    <div class="text-[10px] text-neutral-500 mt-1 truncate">${project.style}</div>
+                `;
+                container.appendChild(card);
+            });
+
+            const selectEl = document.getElementById('customizer-case-select');
+            selectEl.innerHTML = '';
+            projectDatabase.forEach((project, index) => {
+                const opt = document.createElement('option');
+                opt.value = index;
+                opt.textContent = `精装案 0${index+1}：${project.title}`;
+                if (index === activeCaseIndex) opt.selected = true;
+                selectEl.appendChild(opt);
+            });
+        }
+
+        function selectCase(index) {
+            activeCaseIndex = index;
+            renderCaseSelectors();
+            renderActiveCaseDetails();
+            renderGalleryGrid();
+            loadCaseToCustomizerForm();
+        }
+
+        function renderActiveCaseDetails() {
+            const cur = projectDatabase[activeCaseIndex];
+            document.getElementById('active-case-tag').textContent = cur.tag;
+            document.getElementById('active-case-id').textContent = `CASE 0${activeCaseIndex + 1}`;
+            document.getElementById('active-case-title').textContent = cur.title;
+            document.getElementById('active-case-subtitle').textContent = cur.subtitle;
+            document.getElementById('active-case-desc').textContent = cur.desc;
+            document.getElementById('active-case-style').textContent = cur.style;
+            document.getElementById('active-case-area').textContent = cur.area;
+            document.getElementById('active-case-cost').textContent = cur.cost;
+            document.getElementById('active-case-duration').textContent = cur.duration;
+            document.getElementById('active-case-designer').textContent = cur.designer;
+        }
+
+        function switchGalleryTab(tabName) {
+            activeGalleryTab = tabName;
+            
+            const tabs = document.querySelectorAll('.gallery-tab-btn');
+            tabs.forEach(btn => {
+                btn.classList.remove('active', 'text-gold-600', 'border-gold-500');
+                btn.classList.add('text-neutral-400', 'border-transparent');
+            });
+
+            const activeBtn = document.getElementById(`tab-${tabName}`);
+            activeBtn.classList.add('active', 'text-gold-600', 'border-gold-500');
+            activeBtn.classList.remove('text-neutral-400', 'border-transparent');
+
+            const grids = document.querySelectorAll('.gallery-content-grid');
+            grids.forEach(g => g.classList.add('hidden'));
+            
+            document.getElementById(`gallery-grid-${tabName}`).classList.remove('hidden');
+            renderGalleryGrid();
+        }
+
+        function getAbsoluteIndex(tabKey, index) {
+            if (tabKey === 'blueprints') return index;
+            if (tabKey === 'renderings') return 3 + index;
+            if (tabKey === 'reals') return 9 + index;
+            return 0;
+        }
+
+        function renderGalleryGrid() {
+            const cur = projectDatabase[activeCaseIndex];
+            
+            const bpContainer = document.getElementById('gallery-grid-blueprints');
+            bpContainer.innerHTML = '';
+            cur.blueprints.forEach((src, idx) => {
+                bpContainer.appendChild(createImageFrame(src, 'blueprints', idx, `平面布置方案 0${idx+1}`));
+            });
+
+            const renderContainer = document.getElementById('gallery-grid-renderings');
+            renderContainer.innerHTML = '';
+            cur.renderings.forEach((src, idx) => {
+                const gridClass = idx === 0 ? 'col-span-2 row-span-2 h-[220px] md:h-[320px]' : 'col-span-1 h-[100px] md:h-[150px]';
+                renderContainer.appendChild(createImageFrame(src, 'renderings', idx, `设计效果图 0${idx+1}`, gridClass));
+            });
+
+            const realContainer = document.getElementById('gallery-grid-reals');
+            realContainer.innerHTML = '';
+            cur.reals.forEach((src, idx) => {
+                realContainer.appendChild(createImageFrame(src, 'reals', idx, `完工实拍实景 0${idx+1}`));
+            });
+        }
+
+        function createImageFrame(src, tabKey, index, titleText, customGridClass = 'h-[140px] md:h-[180px]') {
+            const wrapper = document.createElement('div');
+            wrapper.className = `relative rounded-xl overflow-hidden shadow group border border-neutral-100 ${customGridClass}`;
+            
+            const absIndex = getAbsoluteIndex(tabKey, index);
+
+            wrapper.innerHTML = `
+                <img src="${src}" alt="${titleText}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://placehold.co/400x300/e5e7eb/a3a3a3?text=精装图槽+${index+1}'">
+                <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4 text-white z-10">
+                    <button onclick="event.stopPropagation(); openLightbox(${absIndex})" class="flex flex-col items-center gap-1 hover:text-gold-500 transition-all active:scale-90">
+                        <i class="fa-solid fa-magnifying-glass-plus text-lg"></i>
+                        <span class="text-[8px] font-bold">放大预览</span>
+                    </button>
+                    <div class="w-px h-8 bg-white/20"></div>
+                    <button onclick="event.stopPropagation(); triggerImageSlotClick('${tabKey}', ${index})" class="flex flex-col items-center gap-1 hover:text-gold-500 transition-all active:scale-90">
+                        <i class="fa-solid fa-cloud-arrow-up text-lg"></i>
+                        <span class="text-[8px] font-bold">替换图片</span>
+                    </button>
+                </div>
+                <div class="absolute bottom-2 left-2 bg-black/70 backdrop-blur-sm px-2 py-0.5 rounded text-[8px] text-white tracking-wider pointer-events-none">
+                    ${titleText}
+                </div>
+            `;
+            return wrapper;
+        }
+
+        // 放大灯箱
+        function openLightbox(absIndex) {
+            const cur = projectDatabase[activeCaseIndex];
+            lightboxImagesList = [];
+
+            cur.blueprints.forEach((src, idx) => {
+                lightboxImagesList.push({ src, category: "平面设计图", title: `平面方案 0${idx+1}` });
+            });
+            cur.renderings.forEach((src, idx) => {
+                lightboxImagesList.push({ src, category: "3D效果图", title: `精装效果提案 0${idx+1}` });
+            });
+            cur.reals.forEach((src, idx) => {
+                lightboxImagesList.push({ src, category: "竣工实景图", title: `完工实景摄影 0${idx+1}` });
+            });
+
+            currentLightboxIndex = absIndex;
+            
+            const modal = document.getElementById('lightbox-modal');
+            modal.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+
+            renderLightboxContent();
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox-modal').classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+        }
+
+        function renderLightboxContent() {
+            const imgData = lightboxImagesList[currentLightboxIndex];
+            const imgEl = document.getElementById('lightbox-img');
+            
+            imgEl.style.opacity = '0.3';
+            imgEl.src = imgData.src;
+            imgEl.onload = () => {
+                imgEl.style.opacity = '1';
+            };
+
+            document.getElementById('lightbox-counter').textContent = `第 ${currentLightboxIndex + 1} / 15 张图片 · ${imgData.category}`;
+            document.getElementById('lightbox-caption').textContent = imgData.title;
+
+            const dotsContainer = document.getElementById('lightbox-dots');
+            dotsContainer.innerHTML = '';
+            lightboxImagesList.forEach((_, idx) => {
+                const dot = document.createElement('button');
+                dot.onclick = () => {
+                    currentLightboxIndex = idx;
+                    renderLightboxContent();
+                };
+                dot.className = `w-2 h-2 rounded-full transition-all ${idx === currentLightboxIndex ? 'bg-gold-500 scale-125 w-4' : 'bg-neutral-600 hover:bg-neutral-400'}`;
+                dotsContainer.appendChild(dot);
+            });
+        }
+
+        function nextLightboxImage() {
+            currentLightboxIndex = (currentLightboxIndex + 1) % 15;
+            renderLightboxContent();
+        }
+
+        function prevLightboxImage() {
+            currentLightboxIndex = (currentLightboxIndex - 1 + 15) % 15;
+            renderLightboxContent();
+        }
+
+        function triggerImageSlotClick(tabKey, index) {
+            uploadTargetInfo.caseIndex = activeCaseIndex;
+            uploadTargetInfo.tab = tabKey;
+            uploadTargetInfo.imgIndex = index;
+            document.getElementById('global-hidden-uploader').click();
+        }
+
+        function handleHiddenUpload(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const base64Url = e.target.result;
+                    const info = uploadTargetInfo;
+                    
+                    projectDatabase[info.caseIndex][info.tab][info.imgIndex] = base64Url;
+                    renderGalleryGrid();
+                    
+                    // --- 自动容灾触发 ---
+                    syncToLocalStorage();
+                    
+                    input.value = '';
+                    showGlobalToast("图片本地更新并渲染成功！已存入自动容灾缓存。", "success");
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function loadCaseToCustomizerForm() {
+            const idx = activeCaseIndex;
+            const cur = projectDatabase[idx];
+            document.getElementById('customizer-case-select').value = idx;
+            document.getElementById('edit-case-title').value = cur.title;
+            document.getElementById('edit-case-tag').value = cur.tag;
+            document.getElementById('edit-case-style').value = cur.style;
+            document.getElementById('edit-case-area').value = cur.area;
+            document.getElementById('edit-case-cost').value = cur.cost;
+            document.getElementById('edit-case-duration').value = cur.duration;
+            document.getElementById('edit-case-designer').value = cur.designer;
+            document.getElementById('edit-case-subtitle').value = cur.subtitle;
+            document.getElementById('edit-case-desc').value = cur.desc;
+        }
+
+        function saveCaseParametersFromForm() {
+            const idx = parseInt(document.getElementById('customizer-case-select').value);
+            activeCaseIndex = idx;
+            const cur = projectDatabase[idx];
+
+            cur.title = document.getElementById('edit-case-title').value;
+            cur.tag = document.getElementById('edit-case-tag').value;
+            cur.style = document.getElementById('edit-case-style').value;
+            cur.area = document.getElementById('edit-case-area').value;
+            cur.cost = document.getElementById('edit-case-cost').value;
+            cur.duration = document.getElementById('edit-case-duration').value;
+            cur.designer = document.getElementById('edit-case-designer').value;
+            cur.subtitle = document.getElementById('edit-case-subtitle').value;
+            cur.desc = document.getElementById('edit-case-desc').value;
+
+            // --- 自动容灾触发 ---
+            syncToLocalStorage();
+
+            renderCaseSelectors();
+            renderActiveCaseDetails();
+            renderGalleryGrid();
+            toggleCustomizer();
+            showGlobalToast("案例信息已更新完毕！已自动容灾缓存。", "success");
+        }
+
+        function createNewCasePlaceholder() {
+            const newIndex = projectDatabase.length;
+            const newId = `case-${String(newIndex + 1).padStart(2, '0')}`;
+            const newProject = {
+                id: newId,
+                title: `马到设计精装部 · 新增案例 ${newIndex + 1}`,
+                subtitle: "高品质精装项目",
+                tag: "精品套内精装",
+                style: "极简主义",
+                area: "120㎡",
+                cost: "￥22万起",
+                duration: "40天",
+                designer: "执行：马到设计精装部",
+                desc: "恭喜！这是一个自动生成的新空案例。您现在可以编辑其文字描述，并在页面上直接点击槽位上传项目照片！",
+                blueprints: [
+                    "https://images.unsplash.com/photo-1545464693-f1798a373343?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1581094288338-2314dddb7eed?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=crop&w=600&q=80"
+                ],
+                renderings: [
+                    "https://images.unsplash.com/photo-1617806118233-18e1db207f62?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1616046229478-9901c5536a45?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=80"
+                ],
+                reals: [
+                    "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1617806118233-18e1db207f62?auto=format&fit=crop&w=600&q=80",
+                    "https://images.unsplash.com/photo-1616046229478-9901c5536a45?auto=format&fit=crop&w=600&q=80"
+                ]
+            };
+            projectDatabase.push(newProject);
+            activeCaseIndex = newIndex;
+
+            // --- 自动容灾触发 ---
+            syncToLocalStorage();
+
+            renderCaseSelectors();
+            renderActiveCaseDetails();
+            renderGalleryGrid();
+            loadCaseToCustomizerForm();
+            
+            showGlobalToast(`已成功创建「新增案例 0${newIndex + 1}」！可立即编辑更新。`, 'success');
+        }
+
+        // 安全调用 Gemini API (带强韧指数退避策略)
+        async function callGeminiAPI(userPrompt, systemPrompt) {
+            const apiKey = "";
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: userPrompt }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] }
+            };
+
+            let delay = 1000;
+            for (let i = 0; i < 5; i++) {
+                try {
+                    const response = await fetch(url, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(payload)
+                    });
+                    if (response.ok) {
+                        const result = await response.json();
+                        const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                        if (text) return text;
+                    }
+                } catch (e) {
+                    // 静默退避
+                }
+                await new Promise(resolve => setTimeout(resolve, delay));
+                delay *= 2;
+            }
+            throw new Error("Gemini API 回调重试用尽，无法响应。");
+        }
+
+        // AI 预算分析与降本方案
+        async function generateAIBudgetSuggestions() {
+            const modal = document.getElementById('ai-modal');
+            const loading = document.getElementById('ai-loading');
+            const container = document.getElementById('ai-result-container');
+            const content = document.getElementById('ai-markdown-content');
+
+            modal.classList.remove('hidden');
+            loading.classList.remove('hidden');
+            container.classList.add('hidden');
+
+            const area = document.getElementById('calc-area').value;
+            const styleSelect = document.getElementById('calc-style');
+            const styleName = styleSelect.options[styleSelect.selectedIndex].text;
+            const finalTotal = document.getElementById('quote-final-total').textContent;
+
+            let itemsText = "";
+            baseItems.forEach(item => {
+                if (runtimeEnabled[item.id] !== false) {
+                    itemsText += `- ${item.name}: ¥${(runtimeCosts[item.id] || 0).toFixed(2)}\n`;
+                }
+            });
+
+            const systemPrompt = "你是一个深谙中国精装供应链及高还原落地的资深造价策划，在马到设计精装部工作。请直接输出带有高级感不减的、带有 Tailwind CSS 轻奢灰、金、翠绿等修饰类名的 HTML 片段，切勿使用 Markdown 格式块包裹，确保能直接无缝渲染在页面的 div 内。重点关注空调系统、地暖、全屋定制及软装这几类高大项，提供精确的材质升级平替以及品牌 and 施工降本手段。";
+            
+            const userPrompt = `
+                客户精装套内面积: ${area}㎡
+                精装风格方向: ${styleName}
+                当前勾选选配并处于预算核算中的子项与估值单:
+                ${itemsText}
+                当前已测算出预估工程造价: ${finalTotal}
+                
+                请针对地暖、换窗、空调系统、瓷砖、全屋定制、软装等大项，提供至少 3 个专为我们精装部定制的“高级感不减”的降本平替材质与建议。列出替代产品，并在 HTML 卡片中标注具体的预估降本金额（人民币元），以及如何避开施工中的隐性损耗。
+            `;
+
+            try {
+                const htmlOutput = await callGeminiAPI(userPrompt, systemPrompt);
+                content.innerHTML = htmlOutput;
+                loading.classList.add('hidden');
+                container.classList.remove('hidden');
+            } catch (error) {
+                content.innerHTML = `
+                    <div class="py-12 text-center text-red-500 space-y-3">
+                        <i class="fa-solid fa-triangle-exclamation text-3xl"></i>
+                        <p class="font-bold">AI 造价调优方案暂时无法获取</p>
+                        <p class="text-xs text-neutral-400">可能是网络连接受限或接口请求超额，请返回并再次重试！</p>
+                    </div>
+                `;
+                loading.classList.add('hidden');
+                container.classList.remove('hidden');
+            }
+        }
+
+        function closeAIModal() {
+            document.getElementById('ai-modal').classList.add('hidden');
+        }
+
+        // AI 自动编撰设计文案
+        async function generateAICaseDescription() {
+            const title = document.getElementById('edit-case-title').value;
+            const style = document.getElementById('edit-case-style').value;
+            const area = document.getElementById('edit-case-area').value;
+            const cost = document.getElementById('edit-case-cost').value;
+            const tag = document.getElementById('edit-case-tag').value;
+
+            const descArea = document.getElementById('edit-case-desc');
+            const oldVal = descArea.value;
+
+            descArea.value = "马到 AI 正在通过精装工艺数据库为您生成触觉感染力的设计文案...";
+
+            const systemPrompt = "你是一位专业的精装美学博主，负责为马到设计精装部撰写文案。要求风格优雅浪漫、一针见血，突出‘合理预算、高落地溢价、极佳高级感’。请直接输出不带任何 Markdown 包裹的 120 字简短精装文案。";
+
+            const userPrompt = `
+                精装项目基础参数:
+                名称: ${title}
+                风格定位: ${style}
+                面积: ${area}
+                预估花费: ${cost}
+                标签特色: ${tag}
+                
+                请用第一人称‘我们精装部’输出一段充满归家仪式感、让人想一键测算同款的精品段落。
+            `;
+
+            try {
+                const resultText = await callGeminiAPI(userPrompt, systemPrompt);
+                descArea.value = resultText;
+                showGlobalToast("文案智能生成成功！", "success");
+            } catch (e) {
+                descArea.value = oldVal;
+                showGlobalToast("AI 生成超时，请稍后重试", "info");
+            }
+        }
+
+        // Excel 公式编译器
+        function evaluateExcelFormula(formulaStr, area, styleFactor, fallbackValue = 0) {
+            if (!formulaStr) return fallbackValue;
+            try {
+                let expr = formulaStr.trim();
+                if (expr.startsWith('=')) {
+                    expr = expr.substring(1).trim();
+                }
+                expr = expr.replace(/\barea\b/gi, area)
+                           .replace(/\bstyle\b/gi, styleFactor);
+                
+                if (/^[0-9.+\-*/() ]+$/.test(expr)) {
+                    const result = new Function(`return (${expr})`)();
+                    return (isNaN(result) || result === undefined || result === null) ? fallbackValue : Number(result);
+                }
+                return fallbackValue;
+            } catch (e) {
+                return fallbackValue;
+            }
+        }
+
+        // 计算总预算 与 默认初始化对齐实际开支
+        function calculateCosts(triggerSource = 'system') {
+            const area = parseFloat(document.getElementById('calc-area').value) || 90;
+            const styleFactor = parseFloat(document.getElementById('calc-style').value);
+
+            const styleSelectEl = document.getElementById('calc-style');
+            const selectedStyleName = styleSelectEl.options[styleSelectEl.selectedIndex].text;
+            document.getElementById('summary-style').textContent = selectedStyleName;
+            document.getElementById('summary-area').textContent = area;
+
+            if (triggerSource === 'system') {
+                baseItems.forEach(item => {
+                    let isChecked = runtimeEnabled[item.id] !== false;
+                    if (isChecked) {
+                        const prevVal = runtimeCosts[item.id] || 0;
+                        const computedBudget = evaluateExcelFormula(item.formula, area, styleFactor, prevVal);
+                        runtimeCosts[item.id] = computedBudget;
+                        
+                        // 盈亏初始化安全锁：如果该项的实际决算支出为 0 或 undefined，默认对齐预算
+                        if (runtimeActualCosts[item.id] === undefined || runtimeActualCosts[item.id] === 0) {
+                            runtimeActualCosts[item.id] = computedBudget;
+                        }
+                    } else {
+                        runtimeCosts[item.id] = 0;
+                        runtimeActualCosts[item.id] = 0;
+                    }
+                });
+                renderLeftConfigPanel();
+            }
+
+            renderRightQuoteTable();
+        }
+
+        function renderLeftConfigPanel() {
+            const container = document.getElementById('interactive-config-container');
+            container.innerHTML = '';
+
+            const groups = ['basic', 'main', 'furnish'];
+            groups.forEach(gKey => {
+                const groupTitle = groupNames[gKey];
+                
+                const groupWrapper = document.createElement('div');
+                groupWrapper.className = 'space-y-3 border-b border-neutral-100 pb-3 mb-2 last:border-0 last:pb-0 last:mb-0';
+                
+                groupWrapper.innerHTML = `
+                    <h5 class="text-[10px] uppercase font-bold text-neutral-400 tracking-wider mb-1">${groupTitle}</h5>
+                `;
+
+                const itemsInGroup = baseItems.filter(item => item.group === gKey);
+                itemsInGroup.forEach(item => {
+                    const cost = runtimeCosts[item.id] || 0;
+                    const isChecked = runtimeEnabled[item.id] !== false;
+
+                    const row = document.createElement('div');
+                    row.className = 'flex flex-col gap-1 border-b border-neutral-50 pb-2 last:border-0 last:pb-0';
+                    
+                    row.innerHTML = `
+                        <div class="flex items-center justify-between gap-2 text-xs">
+                            <label class="flex items-center gap-1.5 cursor-pointer select-none truncate max-w-[150px]">
+                                <input type="checkbox" id="check-${item.id}" ${isChecked ? 'checked' : ''} onchange="toggleItemCheck('${item.id}', this.checked)" class="w-3.5 h-3.5 accent-emerald-500 rounded">
+                                <span class="font-semibold ${isChecked ? 'text-neutral-700' : 'text-neutral-400'} truncate">${item.name}</span>
+                            </label>
+                            <div class="relative">
+                                <span class="absolute left-1.5 top-1/2 -translate-y-1/2 text-[9px] text-neutral-400 font-bold">¥</span>
+                                <input type="number" step="0.01" id="input-${item.id}" value="${cost.toFixed(2)}" ${isChecked ? '' : 'disabled'} oninput="updateItemValue('${item.id}', this.value)" class="w-24 text-right bg-neutral-50 focus:bg-white border border-neutral-200 focus:border-emerald-500 rounded pl-4 pr-1.5 py-0.5 font-bold text-onyx text-[11px] outline-none transition-all disabled:opacity-40">
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between text-[10px] pl-5 ${isChecked ? 'opacity-100' : 'opacity-85'}">
+                            <span class="text-[9px] text-neutral-400 flex items-center gap-1">
+                                <i class="fa-solid fa-calculator text-[8px]"></i>公式
+                            </span>
+                            <input type="text" id="formula-${item.id}" value="${item.formula}" placeholder="e.g. area * 150" oninput="updateItemFormula('${item.id}', this.value)" class="w-36 text-right bg-neutral-100/60 focus:bg-white border border-neutral-200 rounded px-1.5 py-0.5 text-[10px] text-neutral-600 font-mono outline-none">
+                        </div>
+                    `;
+                    groupWrapper.appendChild(row);
+                });
+
+                container.appendChild(groupWrapper);
+            });
+        }
+
+        function renderRightQuoteTable() {
+            const thead = document.getElementById('quote-table-thead');
+            const tbody = document.getElementById('detailed-quote-tbody');
+            tbody.innerHTML = '';
+
+            let grandTotalBudget = 0;
+            let grandTotalActual = 0;
+            let visibleIndex = 1;
+
+            // 1. 动态切换表头
+            if (quoteViewMode === 'client') {
+                thead.innerHTML = `
+                    <tr class="border-b border-neutral-200 bg-neutral-50/50 text-neutral-400 text-[10px] font-bold uppercase tracking-wider">
+                        <th class="py-3 px-6">#</th>
+                        <th class="py-3 px-6">精装工程项目</th>
+                        <th class="py-3 px-6 text-right">协议金额 (元)</th>
+                    </tr>
+                `;
+            } else {
+                thead.innerHTML = `
+                    <tr class="border-b border-neutral-200 bg-neutral-50/50 text-neutral-400 text-[10px] font-bold uppercase tracking-wider">
+                        <th class="py-3 px-4">精装项目</th>
+                        <th class="py-3 px-4 text-right">协议预算</th>
+                        <th class="py-3 px-4 text-right">决算实际支出 (可改写)</th>
+                        <th class="py-3 px-4 text-right">偏差盈亏</th>
+                    </tr>
+                `;
+            }
+
+            // 2. 渲染条目
+            baseItems.forEach(item => {
+                const isEnabled = runtimeEnabled[item.id] !== false;
+                if (isEnabled) {
+                    const budgetCost = runtimeCosts[item.id] || 0;
+                    const actualCost = runtimeActualCosts[item.id] !== undefined ? runtimeActualCosts[item.id] : budgetCost;
+
+                    grandTotalBudget += budgetCost;
+                    grandTotalActual += actualCost;
+
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-neutral-50/50 transition-colors text-xs';
+
+                    if (quoteViewMode === 'client') {
+                        row.innerHTML = `
+                            <td class="py-2.5 px-6 font-semibold text-neutral-400 text-[10px]">${visibleIndex++}</td>
+                            <td class="py-2.5 px-6 font-bold text-neutral-800">${item.name}</td>
+                            <td class="py-2.5 px-6 text-right font-serif font-bold text-onyx">
+                                ¥ ${budgetCost.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </td>
+                        `;
+                    } else {
+                        const diff = budgetCost - actualCost; 
+                        let diffHTML = "";
+                        if (diff > 0) {
+                            diffHTML = `<span class="text-emerald-600 font-bold"><i class="fa-solid fa-piggy-bank"></i> +${diff.toFixed(2)}</span>`;
+                        } else if (diff < 0) {
+                            diffHTML = `<span class="text-red-500 font-bold"><i class="fa-solid fa-circle-exclamation"></i> ${diff.toFixed(2)}</span>`;
+                        } else {
+                            diffHTML = `<span class="text-neutral-400">平衡</span>`;
+                        }
+
+                        row.innerHTML = `
+                            <td class="py-2.5 px-4 font-bold text-neutral-800">${item.name}</td>
+                            <td class="py-2.5 px-4 text-right text-neutral-500">¥ ${budgetCost.toFixed(2)}</td>
+                            <td class="py-2.5 px-4 text-right">
+                                <div class="relative inline-block w-24">
+                                    <span class="absolute left-1.5 top-1/2 -translate-y-1/2 text-[9px] text-neutral-400 font-bold">¥</span>
+                                    <input type="number" step="0.01" value="${actualCost.toFixed(2)}"
+                                           oninput="updateActualCost('${item.id}', this.value)"
+                                           class="w-full text-right bg-neutral-50 focus:bg-white border border-neutral-200 focus:border-amber-500 rounded pl-4 pr-1.5 py-0.5 text-[11px] font-bold text-onyx outline-none transition-all">
+                                </div>
+                            </td>
+                            <td class="py-2.5 px-4 text-right font-semibold">${diffHTML}</td>
+                        `;
+                    }
+                    tbody.appendChild(row);
+                }
+            });
+
+            // 空白单据状态
+            if (tbody.children.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="${quoteViewMode === 'client' ? 3 : 4}" class="py-12 text-center text-neutral-400 font-semibold italic">
+                            您没有选择任何精装工项。请在左侧配置面板中勾选。
+                        </td>
+                    </tr>
+                `;
+            }
+
+            // 3. 动态重画底部造价总面板
+            const summaryBlock = document.getElementById('financial-summary-block');
+            
+            if (quoteViewMode === 'client') {
+                document.getElementById('quote-total-caption').textContent = "CONTRACT TOTAL PRICE";
+                document.getElementById('quote-total-desc').textContent = "本估算依据客户所选子工程及公式，在现场与设计师一秒即可秒算并导出 PDF / 打印。";
+                
+                summaryBlock.className = "text-center md:text-right min-w-[200px] space-y-0.5";
+                summaryBlock.innerHTML = `
+                    <span class="text-xs text-gold-500 font-bold block">精装部预估合同总造价</span>
+                    <div id="quote-final-total" class="text-2xl md:text-3xl font-serif font-bold text-gold-500">
+                        ¥ ${grandTotalBudget.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </div>
+                `;
+            } else {
+                document.getElementById('quote-total-caption').textContent = "INTERNAL PROFIT CONTROL CENTER";
+                document.getElementById('quote-total-desc').textContent = "【决算跟踪】：实际材料价格及现场改动将在这里实时呈现差值，让项目管理清清楚楚。";
+                
+                const netPL = grandTotalBudget - grandTotalActual;
+                let plColorClass = "text-neutral-300";
+                let plLabel = "收支持平";
+                let plSign = "";
+
+                if (netPL > 0) {
+                    plColorClass = "text-emerald-500";
+                    plLabel = "项目节省/盈余";
+                    plSign = "+";
+                } else if (netPL < 0) {
+                    plColorClass = "text-red-400 animate-pulse";
+                    plLabel = "项目超支/亏损";
+                }
+
+                summaryBlock.className = "text-left md:text-right w-full md:w-auto space-y-2 text-xs md:text-sm";
+                summaryBlock.innerHTML = `
+                    <div class="grid grid-cols-2 md:flex md:flex-col gap-x-4 gap-y-1">
+                        <div class="flex justify-between md:justify-end gap-3 text-neutral-400">
+                            <span>合同预算总额:</span>
+                            <span class="font-bold text-white">¥ ${grandTotalBudget.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                        </div>
+                        <div class="flex justify-between md:justify-end gap-3 text-neutral-400">
+                            <span>决算实际总支出:</span>
+                            <span class="font-bold text-amber-500">¥ ${grandTotalActual.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                        </div>
+                        <hr class="col-span-2 md:block border-neutral-800 my-1">
+                        <div class="flex justify-between md:justify-end gap-3 col-span-2 mt-1">
+                            <span class="text-neutral-300 font-semibold">${plLabel}:</span>
+                            <span class="font-serif font-bold text-lg md:text-xl ${plColorClass}">
+                                ¥ ${plSign}${netPL.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </span>
+                        </div>
+                    </div>
+                    <!-- 隐藏隐藏字段以配合外部旧方法检索 -->
+                    <div id="quote-final-total" class="hidden">¥ ${grandTotalBudget.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                `;
+            }
+
+            // --- 自动容灾：自动保存工作台 playground 状态 ---
+            syncPlaygroundToLocalStorage();
+        }
+
+        function toggleItemCheck(itemId, isChecked) {
+            runtimeEnabled[itemId] = isChecked;
+            
+            const inputEl = document.getElementById(`input-${itemId}`);
+            if (inputEl) {
+                inputEl.disabled = !isChecked;
+                if (!isChecked) {
+                    inputEl.parentElement.classList.add('opacity-40');
+                } else {
+                    inputEl.parentElement.classList.remove('opacity-40');
+                }
+            }
+            renderRightQuoteTable();
+        }
+
+        function updateItemValue(itemId, rawValue) {
+            const val = parseFloat(rawValue) || 0;
+            runtimeCosts[itemId] = val;
+            renderRightQuoteTable();
+        }
+
+        function updateItemFormula(itemId, newFormula) {
+            const item = baseItems.find(i => i.id === itemId);
+            if (item) {
+                item.formula = newFormula;
+            }
+
+            if (runtimeEnabled[itemId] === false) {
+                runtimeEnabled[itemId] = true;
+                const checkEl = document.getElementById(`check-${itemId}`);
+                if (checkEl) checkEl.checked = true;
+                
+                const inputEl = document.getElementById(`input-${itemId}`);
+                if (inputEl) {
+                    inputEl.disabled = false;
+                    inputEl.parentElement.classList.remove('opacity-40');
+                }
+            }
+
+            const area = document.getElementById('calc-area').value;
+            const styleFactor = document.getElementById('calc-style').value;
+
+            const prevVal = runtimeCosts[itemId] || 0;
+            const computed = evaluateExcelFormula(newFormula, area, styleFactor, prevVal);
+            runtimeCosts[itemId] = computed;
+
+            const inputEl = document.getElementById(`input-${itemId}`);
+            if (inputEl) {
+                inputEl.value = computed.toFixed(2);
+            }
+
+            renderRightQuoteTable();
+        }
+
+        // 处理打印与多页面兼容
+        function triggerPrintWithAlert() {
+            if (activePage !== 'calculator') {
+                showGlobalToast("正在为您自动跳转至『工程预算单』，确认后即将拉起打印窗口！", "info");
+                switchView('calculator');
+                setTimeout(() => {
+                    window.print();
+                }, 600);
+            } else {
+                window.print();
+            }
+        }
+
+        // 应急缓存手动清除方案 (防误触设计)
+        let resetConfirmState = false;
+        function triggerResetCache() {
+            const btn = document.getElementById('btn-reset-cache');
+            const text = document.getElementById('reset-cache-text');
+            if (!resetConfirmState) {
+                resetConfirmState = true;
+                btn.className = "w-full py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 mt-2 animate-pulse";
+                text.textContent = "再次点击以清空浏览器缓存并刷新";
+                showGlobalToast("请再次点击红色按钮以确认还原，当前缓存的图片与账单将彻底归零！", "info");
+                setTimeout(() => {
+                    if (resetConfirmState) {
+                        resetConfirmState = false;
+                        btn.className = "w-full py-2.5 bg-red-950/40 hover:bg-red-900/50 text-red-400 border border-red-900/40 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 mt-2";
+                        text.textContent = "清空本地缓存，还原网页默认值";
+                    }
+                }, 8000); // 8 秒无后续操作自动退出重置状态
+            } else {
+                localStorage.removeItem('MADAO_PROJECT_DB');
+                localStorage.removeItem('MADAO_SAVED_QUOTES_DB');
+                localStorage.removeItem('MADAO_PLAYGROUND_STATE');
+                showGlobalToast("本地容灾缓存已清零！正在为您重载出厂设置...", "success");
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            }
+        }
+
+        // 打包本地 HTML (全面支持序列化保存已存的业主预算单数据库与实际支出)
+        function exportFullHTML() {
+            let docStr = document.documentElement.outerHTML;
+
+            // 替换 projectDatabase 数据库
+            const dbRegex = /let projectDatabase = \[\s*[\s\S]*?\]; \/\/ PROJECT_DB/;
+            const replacementStr = `let projectDatabase = ${JSON.stringify(projectDatabase, null, 4)}; // PROJECT_DB`;
+            docStr = docStr.replace(dbRegex, replacementStr);
+
+            // 替换 savedQuotesDatabase 历史档案库
+            const quotesRegex = /let savedQuotesDatabase = \[\s*[\s\S]*?\]; \/\/ SAVED_QUOTES_DB/;
+            const replacementQuotesStr = `let savedQuotesDatabase = ${JSON.stringify(savedQuotesDatabase, null, 4)}; // SAVED_QUOTES_DB`;
+            docStr = docStr.replace(quotesRegex, replacementQuotesStr);
+
+            // 清理多余的选择标识
+            const selectionTagClean = /||<\/selection-tag>/g;
+            docStr = docStr.replace(selectionTagClean, "");
+
+            const blob = new Blob(["<!DOCTYPE html>\n" + docStr], { type: "text/html;charset=utf-8" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "index.html";
+            link.click();
+            showGlobalToast("项目决算包已成功打包并下载网页！可在离线设备上完美运行。", "success");
+        }
+
+        // 顶栏滚动收缩
+        const header = document.getElementById('main-header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 20) {
+                header.classList.add('shadow-md', 'bg-white/95');
+                header.classList.remove('bg-white/90');
+            } else {
+                header.classList.remove('shadow-md', 'bg-white/95');
+                header.classList.add('bg-white/90');
+            }
+        });
+
+        // 移动端菜单
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+        function toggleMenu() {
+            mobileMenu.classList.add('hidden');
+        }
+
+        // 定制抽屉
+        function toggleCustomizer() {
+            const panel = document.getElementById('customizer-panel');
+            if (panel.classList.contains('translate-x-full')) {
+                panel.classList.remove('translate-x-full');
+            } else {
+                panel.classList.add('translate-x-full');
+            }
+        }
+    </script>
+</body>
+</html>
