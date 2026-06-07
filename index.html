@@ -2,18 +2,6 @@
 <html lang="zh-CN" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
-    </head>
-<body class="font-sans antialiased overflow-x-hidden">
-
-    <script>
-        (function() {
-            const password = prompt("请输入精装部办公密码：");
-            if (password !== "madao2026") {
-                window.location.href = "https://www.baidu.com";
-            }
-        })();
-    </script>
-    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>马到设计精装部 | 案例馆与精装项目决算系统</title>
     <!-- Tailwind CSS -->
@@ -62,7 +50,7 @@
             border-radius: 3px;
         }
         
-        /* 针对输入框移除标准样式 */
+        /* 针对输入框移除 standard 样式 */
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { 
             -webkit-appearance: none; 
@@ -115,6 +103,26 @@
     </style>
 </head>
 <body class="font-sans antialiased overflow-x-hidden">
+
+    <!-- 安全美观的办公系统专属密码锁屏遮罩层 -->
+    <div id="password-gate" class="fixed inset-0 bg-neutral-950 z-[999999] flex items-center justify-center p-4">
+        <div class="bg-neutral-900 border border-neutral-800 rounded-3xl max-w-md w-full p-8 shadow-2xl text-center space-y-6">
+            <div class="w-16 h-16 bg-gold-500/10 text-gold-500 rounded-2xl flex items-center justify-center mx-auto text-2xl border border-gold-500/20">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <div class="space-y-2">
+                <h3 class="text-xl font-serif font-bold text-white">马到设计精装部</h3>
+                <p class="text-xs text-neutral-400">请输入精装部办公密码以进入决算系统</p>
+            </div>
+            <div class="space-y-3">
+                <input type="password" id="gate-password-input" placeholder="请输入安全验证密码" onkeydown="if(event.key==='Enter') verifyGatePassword()" class="w-full bg-neutral-800 border border-neutral-700 focus:border-gold-500 rounded-xl px-4 py-3 outline-none text-white text-center font-bold tracking-widest text-sm transition-all">
+                <p id="gate-error-msg" class="text-[11px] text-red-500 font-semibold hidden"><i class="fa-solid fa-circle-exclamation mr-1 animate-bounce"></i>密码校验失败，请重新输入</p>
+            </div>
+            <button onclick="verifyGatePassword()" class="w-full py-3 bg-gradient-to-r from-gold-600 to-gold-500 hover:from-gold-700 hover:to-gold-600 text-white rounded-xl text-xs font-bold tracking-widest transition-all shadow-lg active:scale-95 duration-150">
+                验证并进入系统
+            </button>
+        </div>
+    </div>
 
     <!-- 顶栏导航 -->
     <header class="fixed top-0 left-0 w-full z-50 bg-white/95 backdrop-blur-md border-b border-neutral-100 transition-all duration-300 print-hidden" id="main-header">
@@ -185,7 +193,7 @@
                 马到设计精装案例作品馆
             </h1>
             <p class="text-neutral-500 max-w-2xl mx-auto text-xs md:text-sm leading-relaxed">
-                高精度的施工图、效果图、真实落地的完工实景图三位一体。您可以随时点选下方案例进行高细节观摩，一键将案例参数同步至预算系统。
+                科学分配硬装及定制预算，利用高集成性价比供应链、微小缝精细收口木饰面及高显指无主灯，打造极富意式质感的高落地还原度空间。
             </p>
         </section>
 
@@ -304,7 +312,7 @@
         </section>
     </main>
 
-    <!-- 主页面容器二：精装报价测算 (只做高细度报价系统) -->
+    <!-- 主页面容器二：精装报价测算 -->
     <main id="view-calculator" class="page-view hidden-view pt-28 pb-16 min-h-screen">
         <!-- 报价测算专属页头 -->
         <section class="max-w-7xl mx-auto px-6 text-center space-y-4 mb-10 print-hidden">
@@ -535,7 +543,7 @@
         </div>
     </div>
 
-    <!-- AI 预算平替建议模态框 (双重防护，无刷新展示，投影清晰度特调) -->
+    <!-- AI 预算平替建议模态框 -->
     <div id="ai-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[99999] hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl flex flex-col max-h-[85vh] border border-neutral-100">
             <div class="flex justify-between items-center border-b border-neutral-100 pb-3 mb-4">
@@ -573,7 +581,7 @@
         </div>
     </div>
 
-    <!-- 高颜值保存预算单模态弹窗 -->
+    <!-- 保存预算单模态弹窗 -->
     <div id="save-quote-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md z-[99999] hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-neutral-100 space-y-5">
             <div class="flex justify-between items-center pb-2 border-b border-neutral-100">
@@ -623,7 +631,7 @@
         </div>
     </div>
 
-    <!-- 预算决算明细、检索以及决算偏差对比弹出框 (Inspect Modal) -->
+    <!-- 预算决算明细、检索以及决算偏差对比弹出框 -->
     <div id="inspector-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md z-[99999] hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-3xl w-full p-6 shadow-2xl border border-neutral-100 flex flex-col max-h-[85vh]">
             <!-- 弹窗页头 -->
@@ -738,13 +746,13 @@
             <!-- 说明板 -->
             <div class="bg-gold-50/10 border border-gold-500/20 p-4 rounded-xl space-y-3">
                 <h4 class="text-xs font-bold text-gold-500 flex items-center gap-1.5">
-                    <i class="fa-solid fa-circle-question"></i> 如何完全自建新案例和图片？
+                    <i class="fa-solid fa-circle-question"></i> 如何完全自建与管理案例？
                 </h4>
                 <div class="text-[11px] text-neutral-300 space-y-2 leading-relaxed">
-                    <p class="text-gold-500 font-semibold">1. 【一键新增空白案例】：在下方点击金色的“新增案例”按钮。系统将瞬间自动创建一个全新的案例标签！</p>
-                    <p>2. 【修改文字属性】：在下拉菜单中选中这个新案例，在编辑表单内修改好名称、面积、设计周期等，点击“更新案例信息并渲染”。</p>
-                    <p>3. 【零代码更换新案例照片】：返回页面，在该新增案例的 15 张格子图里，点击任意图片上的 **“替换图片”**，即可瞬间上传本地电脑/手机上的完工实拍或图纸！</p>
-                    <p>4. 【保存并下载永久文件】：点击下方“导出并下载新网页”金色按钮。您新增的案例、图片以及已存的**历史决算账单**就会永久嵌入网页代码中。iPad 上双击依然完全离线显示！</p>
+                    <p class="text-gold-500 font-semibold">1. 【一键管理案例】：在下方下拉菜单选择对应的案例标签，可通过金色的“新增案例”按键增加，或通过“删除当前案例”按键安全移除。</p>
+                    <p>2. 【修改文字属性】：在表单内修改好名称、风格、面积、设计周期等，点击“更新案例信息并渲染”完成同步。</p>
+                    <p>3. 【零代码更换案例照片】：在主案例库 15 张格子图里，点击任意图片上的 **“替换图片”**，即可瞬间上传设备中的完工实拍或图纸！</p>
+                    <p>4. 【保存并下载永久文件】：点击下方“导出并下载新网页”按钮。您所有的增删改动将永久嵌入网页代码中。iPad 上双击依然完全离线显示！</p>
                 </div>
             </div>
 
@@ -761,7 +769,7 @@
                 </button>
             </div>
 
-            <!-- 增加：本地缓存应急容灾控制区 -->
+            <!-- 本地缓存应急容灾控制区 -->
             <div class="bg-red-500/10 border border-red-500/20 p-4 rounded-xl space-y-2">
                 <h4 class="text-xs font-semibold text-red-400 uppercase tracking-widest flex items-center gap-1.5">
                     <i class="fa-solid fa-triangle-exclamation"></i> 本地缓存应急管理
@@ -782,18 +790,24 @@
             <div>
                 <h4 class="text-xs font-semibold text-gold-500 uppercase tracking-widest mb-4">案例数据快速编辑</h4>
                 <div class="space-y-4">
-                    <!-- 新增案例 -->
-                    <div class="flex items-end gap-2">
-                        <div class="flex-1">
+                    <!-- 选择与操作案例 -->
+                    <div class="space-y-2">
+                        <div>
                             <label class="block text-[11px] text-neutral-400 mb-1 font-bold">选择要编辑的精装案例</label>
-                            <select id="customizer-case-select" onchange="loadCaseToCustomizerForm()" class="w-full bg-neutral-800 border border-neutral-700 rounded-lg py-2 px-3 text-white text-xs outline-none focus:border-gold-500">
+                            <select id="customizer-case-select" onchange="changeCustomizerCase(this.value)" class="w-full bg-neutral-800 border border-neutral-700 rounded-lg py-2.5 px-3 text-white text-xs outline-none focus:border-gold-500">
                                 <!-- 动态加载 -->
                             </select>
                         </div>
-                        <button onclick="createNewCasePlaceholder()" class="bg-gold-500 hover:bg-gold-600 text-white text-xs font-bold px-3 py-2 rounded-lg transition-all flex items-center gap-1.5 h-[34px] shadow whitespace-nowrap active:scale-95">
-                            <i class="fa-solid fa-plus text-[10px]"></i>
-                            <span>新增案例</span>
-                        </button>
+                        <div class="flex gap-2">
+                            <button onclick="createNewCasePlaceholder()" class="flex-1 bg-gold-500 hover:bg-gold-600 text-white text-xs font-bold py-2.5 rounded-lg transition-all flex items-center justify-center gap-1.5 shadow active:scale-95">
+                                <i class="fa-solid fa-plus text-[10px]"></i>
+                                <span>新增案例</span>
+                            </button>
+                            <button id="btn-delete-case" onclick="triggerDeleteCase()" class="flex-1 bg-red-950/40 hover:bg-red-900/50 text-red-400 border border-red-900/40 text-xs font-bold py-2.5 rounded-lg transition-all flex items-center justify-center gap-1.5 active:scale-95">
+                                <i class="fa-solid fa-trash-can text-[10px]"></i>
+                                <span id="delete-case-text">删除当前案例</span>
+                            </button>
+                        </div>
                     </div>
                     
                     <div class="grid grid-cols-2 gap-3 text-xs">
@@ -836,7 +850,7 @@
                         </div>
                         <div>
                             <label class="block text-[11px] text-neutral-400 mb-1 font-bold">执行部门</label>
-                            <input type="text" id="edit-case-designer" class="w-full bg-neutral-800 border border-neutral-700 rounded-lg py-2 px-3 text-white animate-pulse">
+                            <input type="text" id="edit-case-designer" class="w-full bg-neutral-800 border border-neutral-700 rounded-lg py-2 px-3 text-white">
                         </div>
                     </div>
 
@@ -1083,9 +1097,8 @@
         // 新建：已保存工程预算单本地持久化数据库 // SAVED_QUOTES_DB
         let savedQuotesDatabase = []; // SAVED_QUOTES_DB
 
-        // 当前激活物理页面：cases (案例) / calculator (计算器) / saved (保存项目)
+        // 当前激活物理页面
         let activePage = 'cases';
-        
         let activeCaseIndex = 0;
         let activeGalleryTab = 'blueprints';
 
@@ -1172,8 +1185,36 @@
             }
         }
 
+        // 安全校验锁屏机制
+        function verifyGatePassword() {
+            const pwdInput = document.getElementById('gate-password-input');
+            const errorMsg = document.getElementById('gate-error-msg');
+            if (pwdInput.value === "madao2026") {
+                document.getElementById('password-gate').classList.add('hidden');
+                showGlobalToast("欢迎回到精装部办公系统！", "success");
+                sessionStorage.setItem('madao_auth_state', 'unlocked');
+            } else {
+                errorMsg.classList.remove('hidden');
+                pwdInput.value = '';
+                pwdInput.focus();
+            }
+        }
+
         // 页面启动与数据库初始化
         window.onload = function() {
+            // --- 优先判断安全解锁状态 ---
+            const authState = sessionStorage.getItem('madao_auth_state');
+            if (authState === 'unlocked') {
+                const gate = document.getElementById('password-gate');
+                if (gate) gate.classList.add('hidden');
+            } else {
+                // 如果未解锁，强行使密码输入框聚焦
+                setTimeout(() => {
+                    const input = document.getElementById('gate-password-input');
+                    if (input) input.focus();
+                }, 300);
+            }
+
             // --- 自动容灾核心：首要加载本地缓存最新进度 ---
             try {
                 const localProjectDb = localStorage.getItem('MADAO_PROJECT_DB');
@@ -1267,7 +1308,7 @@
         };
 
         /**
-         * 页面级视图物理切换调度中心 (支持三页面完全解耦)
+         * 页面级视图物理切换调度中心
          */
         function switchView(viewName) {
             activePage = viewName;
@@ -1330,7 +1371,7 @@
             const btnProfit = document.getElementById('mode-btn-profit');
             const profitHelper = document.getElementById('profit-management-helper');
 
-            // 切换特定 Badge、标题与副标题，体现极致仪式感
+            // 切换特定 Badge、标题与副标题，体现极佳仪式感
             const subtitleEl = document.getElementById('quote-card-subtitle');
             const titleEl = document.getElementById('quote-card-title');
             const badgeEl = document.getElementById('quote-card-badge');
@@ -1357,7 +1398,7 @@
         }
 
         /**
-         * 一键同步当前预算至决算实际花费 (减少重复填写的神级体验)
+         * 一键同步当前预算至决算实际花费
          */
         function syncAllActualCostsToBudget() {
             baseItems.forEach(item => {
@@ -1460,7 +1501,7 @@
         }
 
         /**
-         * 唤起已保存预算决算明细弹出框 (并排直观展现预算、决算与盈亏偏差，支持即时修改实际开支)
+         * 唤起已保存预算决算明细弹出框
          */
         function openSavedQuoteInspector(id) {
             const quote = savedQuotesDatabase.find(q => q.id === id);
@@ -1684,7 +1725,7 @@
         }
 
         /**
-         * 重新装载历史方案至测算面板并瞬间触发重绘 (保留供需要进行预算微调的设计师二次使用)
+         * 重新装载历史方案至测算面板并瞬间触发重绘
          */
         function loadSavedQuoteToCalculator(id) {
             const target = savedQuotesDatabase.find(q => q.id === id);
@@ -1774,7 +1815,7 @@
                 const card = document.createElement('div');
                 card.className = "bg-white rounded-2xl border border-neutral-200/80 p-5 shadow-sm hover:shadow-md transition-all relative flex flex-col justify-between group hover:border-gold-500/40";
                 
-                // 自动预先计算该笔历史订单的净盈亏，在格栅卡片中提前剧透项目利润
+                // 自动预先计算该笔历史订单的净盈亏
                 let bTotal = 0;
                 let aTotal = 0;
                 baseItems.forEach(item => {
@@ -1909,7 +1950,7 @@
                 styleSelect.value = '1.0';
             }
 
-            // 立刻重新根据面积更新系统计算
+            // 立刻根据面积更新系统计算
             calculateCosts('system');
 
             // 升起无阻塞的高端通知 Toast
@@ -1921,7 +1962,7 @@
             }, 300);
         }
 
-        // 统一展示自定义 Toast 替代原生 Alert/Confirm 阻碍浏览器渲染
+        // 统一展示自定义 Toast
         function showGlobalToast(msg, type = 'success') {
             const toast = document.getElementById('global-toast');
             const msgEl = document.getElementById('global-toast-msg');
@@ -1963,12 +2004,13 @@
                 container.appendChild(card);
             });
 
+            // 后台下拉编辑器同步更新
             const selectEl = document.getElementById('customizer-case-select');
             selectEl.innerHTML = '';
             projectDatabase.forEach((project, index) => {
                 const opt = document.createElement('option');
                 opt.value = index;
-                opt.textContent = `精装案 0${index+1}：${project.title}`;
+                opt.textContent = `案例 0${index+1}：${project.title.replace('马到设计精装部 · ', '')}`;
                 if (index === activeCaseIndex) opt.selected = true;
                 selectEl.appendChild(opt);
             });
@@ -1976,6 +2018,17 @@
 
         function selectCase(index) {
             activeCaseIndex = index;
+            resetDeleteConfirmState();
+            renderCaseSelectors();
+            renderActiveCaseDetails();
+            renderGalleryGrid();
+            loadCaseToCustomizerForm();
+        }
+
+        // 数据管理后台中下拉列表直接调度
+        function changeCustomizerCase(selectVal) {
+            activeCaseIndex = parseInt(selectVal);
+            resetDeleteConfirmState();
             renderCaseSelectors();
             renderActiveCaseDetails();
             renderGalleryGrid();
@@ -2042,7 +2095,7 @@
             const realContainer = document.getElementById('gallery-grid-reals');
             realContainer.innerHTML = '';
             cur.reals.forEach((src, idx) => {
-                realContainer.appendChild(createImageFrame(src, 'reals', idx, `完工实拍实景 0${idx+1}`));
+                realContainer.appendChild(createImageFrame(src, 'reals', idx, `完工实景摄影 0${idx+1}`));
             });
         }
 
@@ -2197,6 +2250,7 @@
             // --- 自动容灾触发 ---
             syncToLocalStorage();
 
+            resetDeleteConfirmState();
             renderCaseSelectors();
             renderActiveCaseDetails();
             renderGalleryGrid();
@@ -2246,12 +2300,75 @@
             // --- 自动容灾触发 ---
             syncToLocalStorage();
 
+            resetDeleteConfirmState();
             renderCaseSelectors();
             renderActiveCaseDetails();
             renderGalleryGrid();
             loadCaseToCustomizerForm();
             
             showGlobalToast(`已成功创建「新增案例 0${newIndex + 1}」！可立即编辑更新。`, 'success');
+        }
+
+        // 双击/二次确认删除当前案例核心方法
+        let deleteConfirmState = false;
+        function triggerDeleteCase() {
+            if (projectDatabase.length <= 1) {
+                showGlobalToast("无法删除：系统中必须保留至少一个内置案例！", "info");
+                return;
+            }
+
+            const btn = document.getElementById('btn-delete-case');
+            const text = document.getElementById('delete-case-text');
+            const currentCaseName = projectDatabase[activeCaseIndex].title.replace('马到设计精装部 · ', '');
+
+            if (!deleteConfirmState) {
+                deleteConfirmState = true;
+                btn.className = "flex-1 bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-2.5 rounded-lg transition-all flex items-center justify-center gap-1.5 animate-pulse shadow-lg";
+                text.textContent = "再次点击确认删除";
+                showGlobalToast(`请再次点击按钮以确认删除案例「${currentCaseName}」！`, "info");
+                
+                // 5秒无后续操作自动退出重置状态
+                setTimeout(() => {
+                    if (deleteConfirmState) {
+                        resetDeleteConfirmState();
+                    }
+                }, 5000);
+            } else {
+                deleteConfirmState = false;
+                const deletedName = projectDatabase[activeCaseIndex].title;
+                
+                // 执行物理删除
+                projectDatabase.splice(activeCaseIndex, 1);
+                
+                // 索引安全边界校对
+                if (activeCaseIndex >= projectDatabase.length) {
+                    activeCaseIndex = projectDatabase.length - 1;
+                }
+                
+                resetDeleteConfirmState();
+                
+                // --- 自动容灾同步 ---
+                syncToLocalStorage();
+
+                // 重新渲染全局
+                renderCaseSelectors();
+                renderActiveCaseDetails();
+                renderGalleryGrid();
+                loadCaseToCustomizerForm();
+                
+                showGlobalToast(`已成功删除案例: ${deletedName.replace('马到设计精装部 · ', '')}`, "success");
+            }
+        }
+
+        // 重置删除案例按钮状态
+        function resetDeleteConfirmState() {
+            deleteConfirmState = false;
+            const btn = document.getElementById('btn-delete-case');
+            const text = document.getElementById('delete-case-text');
+            if (btn && text) {
+                btn.className = "flex-1 bg-red-950/40 hover:bg-red-900/50 text-red-400 border border-red-900/40 text-xs font-bold py-2.5 rounded-lg transition-all flex items-center justify-center gap-1.5 active:scale-95";
+                text.textContent = "删除当前案例";
+            }
         }
 
         // 安全调用 Gemini API (带强韧指数退避策略)
@@ -2310,7 +2427,7 @@
                 }
             });
 
-            const systemPrompt = "你是一个深谙中国精装供应链及高还原落地的资深造价策划，在马到设计精装部工作。请直接输出带有高级感不减的、带有 Tailwind CSS 轻奢灰、金、翠绿等修饰类名的 HTML 片段，切勿使用 Markdown 格式块包裹，确保能直接无缝渲染在页面的 div 内。重点关注空调系统、地暖、全屋定制及软装这几类高大项，提供精确的材质升级平替以及品牌 and 施工降本手段。";
+            const systemPrompt = "你是一个深谙中国精装供应链及高还原落地的资静造价策划，在马到设计精装部工作。请直接输出带有高级感不减的、带有 Tailwind CSS 轻奢灰、金、翠绿等修饰类名的 HTML 片段，切勿使用 Markdown 格式块包裹，确保能直接无缝渲染在页面的 div 内。重点关注空调系统、地暖、全屋定制及软装这几类高大项，提供精确的材质升级平替以及品牌 and 施工降本手段。";
             
             const userPrompt = `
                 客户精装套内面积: ${area}㎡
@@ -2357,7 +2474,7 @@
 
             descArea.value = "马到 AI 正在通过精装工艺数据库为您生成触觉感染力的设计文案...";
 
-            const systemPrompt = "你是一位专业的精装美学博主，负责为马到设计精装部撰写文案。要求风格优雅浪漫、一针见血，突出‘合理预算、高落地溢价、极佳高级感’。请直接输出不带任何 Markdown 包裹的 120 字简短精装文案。";
+            const systemPrompt = "你是一位专业的精装美学博主，负责为马到设计精装部撰写文案。要求风格优雅浪漫、一针见写，突出‘合理预算、高落地还原度、极佳高级感’。请直接输出不带任何 Markdown 包裹的 120 字简短精装文案。";
 
             const userPrompt = `
                 精装项目基础参数:
@@ -2419,7 +2536,7 @@
                         const computedBudget = evaluateExcelFormula(item.formula, area, styleFactor, prevVal);
                         runtimeCosts[item.id] = computedBudget;
                         
-                        // 盈亏初始化安全锁：如果该项的实际决算支出为 0 或 undefined，默认对齐预算
+                        // 盈亏初始化安全锁
                         if (runtimeActualCosts[item.id] === undefined || runtimeActualCosts[item.id] === 0) {
                             runtimeActualCosts[item.id] = computedBudget;
                         }
@@ -2623,7 +2740,7 @@
                             </span>
                         </div>
                     </div>
-                    <!-- 隐藏隐藏字段以配合外部旧方法检索 -->
+                    <!-- 隐藏隐藏字段以配合外部方法检索 -->
                     <div id="quote-final-total" class="hidden">¥ ${grandTotalBudget.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                 `;
             }
@@ -2720,6 +2837,7 @@
                 localStorage.removeItem('MADAO_PROJECT_DB');
                 localStorage.removeItem('MADAO_SAVED_QUOTES_DB');
                 localStorage.removeItem('MADAO_PLAYGROUND_STATE');
+                sessionStorage.removeItem('madao_auth_state');
                 showGlobalToast("本地容灾缓存已清零！正在为您重载出厂设置...", "success");
                 setTimeout(() => {
                     window.location.reload();
@@ -2727,7 +2845,7 @@
             }
         }
 
-        // 打包本地 HTML (全面支持序列化保存已存的业主预算单数据库与实际支出)
+        // 打包本地 HTML
         function exportFullHTML() {
             let docStr = document.documentElement.outerHTML;
 
@@ -2782,6 +2900,7 @@
                 panel.classList.remove('translate-x-full');
             } else {
                 panel.classList.add('translate-x-full');
+                resetDeleteConfirmState(); // 抽屉收起时自动重置删除确认态
             }
         }
     </script>
