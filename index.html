@@ -204,8 +204,8 @@
                     <span class="text-gold-500 font-semibold tracking-widest text-xs uppercase block mb-1">MaDao Hardcover Portfolio</span>
                     <h2 class="text-xl md:text-2xl font-serif text-onyx font-bold">精装竣工展示库</h2>
                 </div>
-                <div class="text-xs text-neutral-400 font-medium">
-                    温馨提示：点击图片中间放大预览，点击“替换图片”可由设计师自主导入项目完工照。
+                <div class="text-xs text-neutral-400 font-medium font-sans">
+                    温馨提示：案例照片支持弹性增减。点击「添加一张新图」可自由扩展，悬浮在图片上即可随时删除或替换多余图片。
                 </div>
             </div>
 
@@ -269,18 +269,18 @@
                     </div>
                 </div>
 
-                <!-- 右侧栏：15张图片多维画廊展示器 -->
+                <!-- 右侧栏：流式弹性图片多维画廊展示器 -->
                 <div class="lg:col-span-8 space-y-6">
-                    <!-- 画廊子维度选项 -->
+                    <!-- 画廊子维度选项 (动态张数角标) -->
                     <div class="flex border-b border-neutral-200 pb-px gap-6">
                         <button onclick="switchGalleryTab('blueprints')" id="tab-blueprints" class="gallery-tab-btn active pb-3 text-xs md:text-sm font-semibold text-gold-600 border-b-2 border-gold-500 transition-all flex items-center gap-2">
-                            <i class="fa-solid fa-map"></i> 平面设计图 <span class="bg-gold-50 text-gold-600 text-[10px] px-2 py-0.5 rounded-full">3张</span>
+                            <i class="fa-solid fa-map"></i> 平面设计图 <span id="badge-blueprints" class="bg-gold-50 text-gold-600 text-[10px] px-2 py-0.5 rounded-full">0张</span>
                         </button>
                         <button onclick="switchGalleryTab('renderings')" id="tab-renderings" class="gallery-tab-btn pb-3 text-xs md:text-sm font-semibold text-neutral-400 border-b-2 border-transparent hover:text-onyx transition-all flex items-center gap-2">
-                            <i class="fa-solid fa-cube"></i> 3D效果图 <span class="bg-neutral-100 text-neutral-500 text-[10px] px-2 py-0.5 rounded-full">6张</span>
+                            <i class="fa-solid fa-cube"></i> 3D效果图 <span id="badge-renderings" class="bg-neutral-100 text-neutral-500 text-[10px] px-2 py-0.5 rounded-full">0张</span>
                         </button>
                         <button onclick="switchGalleryTab('reals')" id="tab-reals" class="gallery-tab-btn pb-3 text-xs md:text-sm font-semibold text-neutral-400 border-b-2 border-transparent hover:text-onyx transition-all flex items-center gap-2">
-                            <i class="fa-solid fa-camera-retro"></i> 竣工实景图 <span class="bg-neutral-100 text-neutral-500 text-[10px] px-2 py-0.5 rounded-full">6张</span>
+                            <i class="fa-solid fa-camera-retro"></i> 竣工实景图 <span id="badge-reals" class="bg-neutral-100 text-neutral-500 text-[10px] px-2 py-0.5 rounded-full">0张</span>
                         </button>
                     </div>
 
@@ -291,19 +291,19 @@
                             <span>作品大图：点击各格大镜子按钮可放大看清工艺细节</span>
                         </div>
                         
-                        <!-- 槽位 1-3：平面图网格 -->
+                        <!-- 动态平面图网格 -->
                         <div id="gallery-grid-blueprints" class="gallery-content-grid grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <!-- 动态加载 3 张平面布置图 -->
+                            <!-- 动态加载 blueprints 数组图片 + Add Button -->
                         </div>
 
-                        <!-- 槽位 4-9：3D效果图网格 (1大5小) -->
+                        <!-- 动态3D效果图网格 -->
                         <div id="gallery-grid-renderings" class="gallery-content-grid hidden grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <!-- 动态加载 6 张效果图 -->
+                            <!-- 动态加载 renderings 数组图片 + Add Button -->
                         </div>
 
-                        <!-- 槽位 10-15：竣工实景照网格 -->
+                        <!-- 动态竣工实景照网格 -->
                         <div id="gallery-grid-reals" class="gallery-content-grid hidden grid grid-cols-2 md:grid-cols-3 gap-4">
-                            <!-- 动态加载 6 张实景拍摄图 -->
+                            <!-- 动态加载 reals 数组图片 + Add Button -->
                         </div>
                     </div>
                 </div>
@@ -496,7 +496,7 @@
                     <span class="text-gold-500 font-semibold tracking-widest text-xs uppercase block mb-1">Hardcover Estimates & Settlements</span>
                     <h2 class="text-xl md:text-2xl font-serif text-onyx font-bold">已存精装项目决算单 (<span id="saved-total-count-text">0</span>份)</h2>
                 </div>
-                <div class="text-xs text-neutral-400 font-medium">
+                <div class="text-xs text-neutral-400 font-medium font-sans">
                     提示：点击下方的“查看明细”可快速进行精装工项支出的查改与保存，保持业务操作极其简单。
                 </div>
             </div>
@@ -751,7 +751,7 @@
                 <div class="text-[11px] text-neutral-300 space-y-2 leading-relaxed">
                     <p class="text-gold-500 font-semibold">1. 【一键管理案例】：在下方下拉菜单选择对应的案例标签，可通过金色的“新增案例”按键增加，或通过“删除当前案例”按键安全移除。</p>
                     <p>2. 【修改文字属性】：在表单内修改好名称、风格、面积、设计周期等，点击“更新案例信息并渲染”完成同步。</p>
-                    <p>3. 【零代码更换案例照片】：在主案例库 15 张格子图里，点击任意图片上的 **“替换图片”**，即可瞬间上传设备中的完工实拍或图纸！</p>
+                    <p>3. 【零代码更换案例照片】：在主案例库流式格子图里，点击图片悬浮条上的 **“替换图片”** 或点击最下方的 **「添加一张新图」**，可自由无限拓展！</p>
                     <p>4. 【保存并下载永久文件】：点击下方“导出并下载新网页”按钮。您所有的增删改动将永久嵌入网页代码中。iPad 上双击依然完全离线显示！</p>
                 </div>
             </div>
@@ -939,154 +939,15 @@
                 designer: "执行：马到设计精装部",
                 desc: "以大厂高环保水性墙面漆调出质朴暖灰底色，无缝接入天然暖调山纹生态板定制。在一呼一吸间享受精装带来的归家松弛感。",
                 blueprints: [
-                    "https://images.unsplash.com/photo-1545464693-f1798a373343?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1581094288338-2314dddb7eed?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=format&fit=crop&w=600&q=80"
+                    "https://images.unsplash.com/photo-1545464693-f1798a373343?auto=format&fit=crop&w=600&q=80"
                 ],
                 renderings: [
                     "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=600&q=80",
                     "https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=format&fit=crop&w=600&q=80",
                     "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=600&q=80"
-                ],
-                reals: [
-                    "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1617806118233-18e1db207f62?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1616046229478-9901c5536a45?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=80"
-                ]
-            },
-            {
-                id: "case-03",
-                title: "马到设计精装部 · 浪漫巴黎",
-                subtitle: "法式复古现代精装作品",
-                tag: "洋房复式精装",
-                style: "暖白法式",
-                area: "160㎡",
-                cost: "￥38万起",
-                duration: "50+天",
-                designer: "执行：马到设计精装部",
-                desc: "改装传统复杂石膏花，精简墙面线条并保留现代家具质感。利用恰到好处的黄铜细节，重塑精装特有的浪漫都市格调。",
-                blueprints: [
-                    "https://images.unsplash.com/photo-1545464693-f1798a373343?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1581094288338-2314dddb7eed?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=format&fit=crop&w=600&q=80"
-                ],
-                renderings: [
-                    "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1617806118233-18e1db207f62?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1616046229478-9901c5536a45?auto=format&fit=crop&w=600&q=80"
-                ],
-                reals: [
-                    "https://images.unsplash.com/photo-1617806118233-18e1db207f62?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1616046229478-9901c5536a45?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=600&q=80"
-                ]
-            },
-            {
-                id: "case-04",
-                title: "马到设计精装部 · 暮色金华",
-                subtitle: "轻奢金华精装项目",
-                tag: "联排别墅精装",
-                style: "无界美学",
-                area: "150㎡",
-                cost: "￥35万起",
-                duration: "55天",
-                designer: "执行：马到设计精装部",
-                desc: "采用深邃岩板作为大底，配合黑哑光漆面与精密钛金线条点缀，实现兼具高工期保障与非凡美感的重力美学精装。",
-                blueprints: [
-                    "https://images.unsplash.com/photo-1545464693-f1798a373343?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1581094288338-2314dddb7eed?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=format&fit=crop&w=600&q=80"
-                ],
-                renderings: [
-                    "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1617806118233-18e1db207f62?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1616046229478-9901c5536a45?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=format&fit=crop&w=600&q=80"
-                ],
-                reals: [
-                    "https://images.unsplash.com/photo-1616046229478-9901c5536a45?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=80"
-                ]
-            },
-            {
-                id: "case-05",
-                title: "马到设计精装部 · 沐光奶油",
-                subtitle: "温馨极简奶油精装作品",
-                tag: "全屋高标准环保精装",
-                style: "极简主义",
-                area: "110㎡",
-                cost: "￥20万起",
-                duration: "40天",
-                designer: "执行：马到设计精装部",
-                desc: "大面积采用珍珠暖白艺术墙涂、奶咖基色配色及圆润的一体化定制家具弧度，为年轻三口之家打造触感柔软的奶油风乐园。",
-                blueprints: [
-                    "https://images.unsplash.com/photo-1545464693-f1798a373343?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1581094288338-2314dddb7eed?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=format&fit=crop&w=600&q=80"
-                ],
-                renderings: [
-                    "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1617806118233-18e1db207f62?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1616046229478-9901c5536a45?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=600&q=80"
-                ],
-                reals: [
-                    "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=80"
-                ]
-            },
-            {
-                id: "case-06",
-                title: "马到设计精装部 · 未来无界",
-                subtitle: "轻工业极简精装作品",
-                tag: "极简Loft精装",
-                style: "无界美学",
-                area: "140㎡",
-                cost: "￥32万起",
-                duration: "50天",
-                designer: "执行：马到设计精装部",
-                desc: "保留原始建筑挑高及局部裸露的水泥梁柱，大面积运用拉丝不锈钢定制件、夹丝安全玻璃隔断，用超优预算造就超未来的前卫居所。",
-                blueprints: [
-                    "https://images.unsplash.com/photo-1545464693-f1798a373343?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1581094288338-2314dddb7eed?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=crop&w=600&q=80"
-                ],
-                renderings: [
-                    "https://images.unsplash.com/photo-1617806118233-18e1db207f62?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1616046229478-9901c5536a45?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=600&q=80",
                     "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=80"
                 ],
                 reals: [
-                    "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80",
                     "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=600&q=80",
                     "https://images.unsplash.com/photo-1617806118233-18e1db207f62?auto=format&fit=crop&w=600&q=80",
                     "https://images.unsplash.com/photo-1616046229478-9901c5536a45?auto=format&fit=crop&w=600&q=80"
@@ -1102,11 +963,12 @@
         let activeCaseIndex = 0;
         let activeGalleryTab = 'blueprints';
 
-        // 本地图片上传状态
+        // 本地图片上传状态 (action可为: replace 或 add)
         let uploadTargetInfo = {
             caseIndex: 0,
             tab: 'blueprints',
-            imgIndex: 0
+            imgIndex: -1,
+            action: 'replace'
         };
 
         // 运行时报价状态 与 实际决算支出状态
@@ -1119,7 +981,7 @@
         let currentLightboxIndex = 0;
         let lightboxImagesList = [];
 
-        // 用于明细查看器的高级状态 (用于暂存弹出框中直接改写的临时数值)
+        // 用于明细查看器的高级状态
         let activeInspectorQuoteId = null;
         let tempInspectorCosts = {}; 
 
@@ -1158,7 +1020,7 @@
             furnish: "家具软装与部门利润"
         };
 
-        // 【自动容灾】本地核心数据同步模块
+        // 【自动容灾】本地数据同步模块
         function syncToLocalStorage() {
             try {
                 localStorage.setItem('MADAO_PROJECT_DB', JSON.stringify(projectDatabase));
@@ -1168,7 +1030,7 @@
             }
         }
 
-        // 【自动容灾】本地工作暂存盘同步模块
+        // 【自动容灾】工作台暂存
         function syncPlaygroundToLocalStorage() {
             try {
                 const playground = {
@@ -1208,14 +1070,13 @@
                 const gate = document.getElementById('password-gate');
                 if (gate) gate.classList.add('hidden');
             } else {
-                // 如果未解锁，强行使密码输入框聚焦
                 setTimeout(() => {
                     const input = document.getElementById('gate-password-input');
                     if (input) input.focus();
                 }, 300);
             }
 
-            // --- 自动容灾核心：首要加载本地缓存最新进度 ---
+            // --- 自动容灾加载 ---
             try {
                 const localProjectDb = localStorage.getItem('MADAO_PROJECT_DB');
                 if (localProjectDb) {
@@ -1229,7 +1090,7 @@
                 console.error("读取缓存容灾数据失败，采用文件默认值", e);
             }
 
-            // 初始化默认日期
+            // 初始化默认日期与单号
             const today = new Date();
             const yyyy = today.getFullYear();
             const mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -1239,12 +1100,12 @@
             const randomNum = Math.floor(Math.random() * 9000 + 1000);
             document.getElementById('quote-number').textContent = `预估单号: MD-${yyyy}${mm}${dd}-${randomNum}`;
 
-            // 初始化各子项选配启用开关状态
+            // 初始化各子项状态
             baseItems.forEach(item => {
                 runtimeEnabled[item.id] = (item.defaultChecked !== undefined) ? item.defaultChecked : true;
             });
 
-            // --- 自动容灾核心：复原工作暂存盘 ---
+            // --- 复原工作暂存盘 ---
             let hasCachePlayground = false;
             try {
                 const localPlayground = localStorage.getItem('MADAO_PLAYGROUND_STATE');
@@ -1273,7 +1134,7 @@
             loadCaseToCustomizerForm();
 
             if (hasCachePlayground) {
-                calculateCosts('cache'); // 仅作重绘不覆盖缓存
+                calculateCosts('cache'); 
             } else {
                 calculateCosts('system');
             }
@@ -1281,10 +1142,9 @@
             renderSavedQuotesGrid();
             updateSavedBadgesCount();
 
-            // 路由定位到首页面案例馆
             switchView('cases');
 
-            // 键盘与滑动手势监听
+            // 监听键盘与灯箱
             window.addEventListener('keydown', (e) => {
                 const modal = document.getElementById('lightbox-modal');
                 if (modal && !modal.classList.contains('hidden')) {
@@ -1308,7 +1168,7 @@
         };
 
         /**
-         * 页面级视图物理切换调度中心
+         * 页面级视图物理切换
          */
         function switchView(viewName) {
             activePage = viewName;
@@ -1325,12 +1185,10 @@
             const mobileNavCalc = document.getElementById('mobile-nav-btn-calculator');
             const mobileNavSaved = document.getElementById('mobile-nav-btn-saved');
 
-            // 页面显隐
             casesView.classList.add('hidden-view'); casesView.classList.remove('active-view');
             calcView.classList.add('hidden-view'); calcView.classList.remove('active-view');
             savedView.classList.add('hidden-view'); savedView.classList.remove('active-view');
 
-            // 经典复原所有标签类名
             navCases.className = "px-6 py-2.5 rounded-full transition-all duration-200 flex items-center gap-2 text-neutral-500 hover:text-onyx";
             navCalc.className = "px-6 py-2.5 rounded-full transition-all duration-200 flex items-center gap-2 text-neutral-500 hover:text-onyx";
             navSaved.className = "px-6 py-2.5 rounded-full transition-all duration-200 flex items-center gap-2 text-neutral-500 hover:text-onyx relative";
@@ -1357,13 +1215,9 @@
                 renderSavedQuotesGrid();
             }
 
-            // 平滑滚回顶层，消除长页面滚屏记忆
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        /**
-         * 切换 报价展现视图 vs 决算盈亏核算模式
-         */
         function setQuoteViewMode(mode) {
             quoteViewMode = mode;
             
@@ -1371,7 +1225,6 @@
             const btnProfit = document.getElementById('mode-btn-profit');
             const profitHelper = document.getElementById('profit-management-helper');
 
-            // 切换特定 Badge、标题与副标题，体现极佳仪式感
             const subtitleEl = document.getElementById('quote-card-subtitle');
             const titleEl = document.getElementById('quote-card-title');
             const badgeEl = document.getElementById('quote-card-badge');
@@ -1397,9 +1250,6 @@
             renderRightQuoteTable();
         }
 
-        /**
-         * 一键同步当前预算至决算实际花费
-         */
         function syncAllActualCostsToBudget() {
             baseItems.forEach(item => {
                 runtimeActualCosts[item.id] = runtimeCosts[item.id] || 0;
@@ -1408,18 +1258,12 @@
             showGlobalToast("决算数据对齐成功！您可以直接修改产生偏差的单项支出。", "success");
         }
 
-        /**
-         * 实际决算金额微调改写
-         */
         function updateActualCost(itemId, rawValue) {
             const val = parseFloat(rawValue) || 0;
             runtimeActualCosts[itemId] = val;
             renderRightQuoteTable();
         }
 
-        /**
-         * 唤起无阻塞的高保真保存预算弹窗
-         */
         function openSaveQuoteModal() {
             const area = document.getElementById('calc-area').value;
             const styleSelect = document.getElementById('calc-style');
@@ -1430,7 +1274,6 @@
             document.getElementById('save-preview-style').textContent = styleName;
             document.getElementById('save-preview-total').textContent = finalTotal;
 
-            // 清空旧数据
             document.getElementById('save-client-name').value = '';
             document.getElementById('save-client-phone').value = '';
             document.getElementById('save-client-remarks').value = '';
@@ -1442,9 +1285,6 @@
             document.getElementById('save-quote-modal').classList.add('hidden');
         }
 
-        /**
-         * 将当前调配完好的数据推入已保存历史数据库，实现精细化归档
-         */
         function submitSaveQuote() {
             const nameInput = document.getElementById('save-client-name').value.trim();
             if (!nameInput) {
@@ -1464,7 +1304,6 @@
             const phone = document.getElementById('save-client-phone').value.trim();
             const remarks = document.getElementById('save-client-remarks').value.trim();
 
-            // 打包数据进行完全解耦深度克隆
             const newQuote = {
                 id: "quote-" + Date.now(),
                 clientName: nameInput,
@@ -1478,38 +1317,29 @@
                 grandTotal: finalTotal,
                 timestamp: new Date().toLocaleString('zh-CN', { hour12: false }),
                 runtimeCosts: JSON.parse(JSON.stringify(runtimeCosts)),
-                runtimeActualCosts: JSON.parse(JSON.stringify(runtimeActualCosts)), // 同步保存实际支出
+                runtimeActualCosts: JSON.parse(JSON.stringify(runtimeActualCosts)),
                 runtimeEnabled: JSON.parse(JSON.stringify(runtimeEnabled)),
                 formulas: baseItems.map(item => ({ id: item.id, formula: item.formula }))
             };
 
-            // 塞入持久化数组
             savedQuotesDatabase.unshift(newQuote);
-
-            // --- 自动容灾触发 ---
             syncToLocalStorage();
 
-            // 更新红点及列表
             updateSavedBadgesCount();
             closeSaveQuoteModal();
             showGlobalToast(`成功！已将「${nameInput}」的工程测算决算单归档`, "success");
 
-            // 切换到已保存区块供设计师过目
             setTimeout(() => {
                 switchView('saved');
             }, 500);
         }
 
-        /**
-         * 唤起已保存预算决算明细弹出框
-         */
         function openSavedQuoteInspector(id) {
             const quote = savedQuotesDatabase.find(q => q.id === id);
             if (!quote) return;
 
             activeInspectorQuoteId = id;
 
-            // 1. 深拷贝当前选配单的实际决算开支到临时变量
             tempInspectorCosts = {};
             baseItems.forEach(item => {
                 const isEnabled = quote.runtimeEnabled[item.id] !== false;
@@ -1520,23 +1350,19 @@
                 }
             });
 
-            // 2. 填充面板数据
             document.getElementById('inspector-title').textContent = `业主精装决算核对: ${quote.clientName}`;
             document.getElementById('inspector-subtitle').textContent = `工程单号: ${quote.quoteNumber} | 归档时间: ${quote.timestamp}`;
             document.getElementById('inspector-meta').textContent = `${quote.area} ㎡ | ${quote.styleName}`;
             document.getElementById('inspector-remarks').textContent = `备注: ${quote.remarks || "暂无备注"}`;
             
-            // 3. 重置检索框
             document.getElementById('inspector-item-search').value = '';
 
-            // 4. 绑定底部的载入到测算面板修改按钮
             const loadBtn = document.getElementById('inspector-load-btn');
             loadBtn.onclick = function() {
                 loadSavedQuoteToCalculator(id);
                 closeSavedQuoteInspector();
             };
 
-            // 5. 唤起 Modal 并渲染明细行与总看板数值
             document.getElementById('inspector-modal').classList.remove('hidden');
             recalcAndRenderInspector();
         }
@@ -1551,9 +1377,6 @@
             recalcAndRenderInspector();
         }
 
-        /**
-         * 重新汇总并更新决算弹窗内部各项数值和列表
-         */
         function recalcAndRenderInspector() {
             if (!activeInspectorQuoteId) return;
             const quote = savedQuotesDatabase.find(q => q.id === activeInspectorQuoteId);
@@ -1577,7 +1400,6 @@
                     totalActual += actual;
 
                     const itemName = item.name;
-                    // 检索词过滤
                     if (searchQuery && !itemName.toLowerCase().includes(searchQuery)) {
                         return;
                     }
@@ -1628,7 +1450,6 @@
                 `;
             }
 
-            // 更新弹窗头部的多维统计小看板
             const netPL = totalBudget - totalActual;
             document.getElementById('inspector-budget-total').textContent = `¥ ${totalBudget.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
             document.getElementById('inspector-actual-total').textContent = `¥ ${totalActual.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -1643,9 +1464,6 @@
             }
         }
 
-        /**
-         * 极速更新单行决算差额以避开频繁重绘导致的 Input Focus 丢失
-         */
         function updateTempInspectorCost(itemId, val) {
             const costValue = parseFloat(val) || 0;
             tempInspectorCosts[itemId] = costValue;
@@ -1654,7 +1472,6 @@
             const quote = savedQuotesDatabase.find(q => q.id === activeInspectorQuoteId);
             if (!quote) return;
 
-            // 1. 快速重绘头部统计卡，防止输入框丢失焦点
             let totalBudget = 0;
             let totalActual = 0;
             baseItems.forEach(item => {
@@ -1678,7 +1495,6 @@
                 profitEl.innerHTML = `<i class="fa-solid fa-square-trend-down text-red-500 mr-1"></i> 超支 ¥ ${Math.abs(netPL).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
             }
 
-            // 2. 精确计算并更新当前行最右侧的偏差列文本
             const budget = quote.runtimeCosts[itemId] || 0;
             const actual = tempInspectorCosts[itemId];
             const diff = budget - actual;
@@ -1692,7 +1508,6 @@
                 diffHTML = `<span class="text-neutral-400">平衡</span>`;
             }
 
-            // 寻找当前 input 所在的 tr 的最末个 td 子元素直接赋写
             const inputEl = document.querySelector(`input[oninput*="updateTempInspectorCost('${itemId}'"]`);
             if (inputEl) {
                 const tr = inputEl.closest('tr');
@@ -1702,21 +1517,14 @@
             }
         }
 
-        /**
-         * 独立保存：不载入主面板，直接一键将弹窗内的实际修改覆写存储进底层数据库
-         */
         function saveInspectorActualCosts() {
             if (!activeInspectorQuoteId) return;
             const quoteIndex = savedQuotesDatabase.findIndex(q => q.id === activeInspectorQuoteId);
             if (quoteIndex === -1) return;
 
-            // 深度更新对应的实际开支
             savedQuotesDatabase[quoteIndex].runtimeActualCosts = JSON.parse(JSON.stringify(tempInspectorCosts));
-
-            // --- 自动容灾触发 ---
             syncToLocalStorage();
 
-            // 实时刷新历史网格看板
             renderSavedQuotesGrid();
             updateSavedBadgesCount();
 
@@ -1724,18 +1532,13 @@
             closeSavedQuoteInspector();
         }
 
-        /**
-         * 重新装载历史方案至测算面板并瞬间触发重绘
-         */
         function loadSavedQuoteToCalculator(id) {
             const target = savedQuotesDatabase.find(q => q.id === id);
             if (!target) return;
 
-            // 1. 复写全局属性
             document.getElementById('calc-area').value = target.area;
             document.getElementById('calc-style').value = target.styleValue;
 
-            // 2. 复写子工项公式
             target.formulas.forEach(f => {
                 const matched = baseItems.find(i => i.id === f.id);
                 if (matched) {
@@ -1743,39 +1546,30 @@
                 }
             });
 
-            // 3. 复写具体预算单价 与 实际决算支出单价
             runtimeCosts = JSON.parse(JSON.stringify(target.runtimeCosts));
             runtimeActualCosts = target.runtimeActualCosts ? JSON.parse(JSON.stringify(target.runtimeActualCosts)) : {};
             runtimeEnabled = JSON.parse(JSON.stringify(target.runtimeEnabled));
 
-            // 安全防护：针对没有实际决算开支的旧单，默认对齐其预算金额
             baseItems.forEach(item => {
                 if (runtimeActualCosts[item.id] === undefined) {
                     runtimeActualCosts[item.id] = runtimeCosts[item.id] || 0;
                 }
             });
 
-            // 4. 复写预估发票特定头部
             document.getElementById('quote-number').textContent = target.quoteNumber;
             document.getElementById('quote-date').textContent = target.quoteDate;
 
-            // 5. 激发渲染
             renderLeftConfigPanel();
             renderRightQuoteTable();
 
-            // 6. 重绘并切页面
             showGlobalToast(`已将 业主「${target.clientName}」的测算决算复载至工作台！`, "success");
             switchView('calculator');
         }
 
-        /**
-         * 已保存档案历史卡片删除
-         */
         function deleteSavedQuote(id, event) {
             if (event) event.stopPropagation();
             savedQuotesDatabase = savedQuotesDatabase.filter(q => q.id !== id);
             
-            // --- 自动容灾触发 ---
             syncToLocalStorage();
             
             updateSavedBadgesCount();
@@ -1783,9 +1577,6 @@
             showGlobalToast("决算单据已从历史柜中移除", "info");
         }
 
-        /**
-         * 渲染已保存预算单格栅
-         */
         function renderSavedQuotesGrid() {
             const container = document.getElementById('saved-quotes-grid');
             container.innerHTML = '';
@@ -1815,7 +1606,6 @@
                 const card = document.createElement('div');
                 card.className = "bg-white rounded-2xl border border-neutral-200/80 p-5 shadow-sm hover:shadow-md transition-all relative flex flex-col justify-between group hover:border-gold-500/40";
                 
-                // 自动预先计算该笔历史订单的净盈亏
                 let bTotal = 0;
                 let aTotal = 0;
                 baseItems.forEach(item => {
@@ -1895,9 +1685,6 @@
             });
         }
 
-        /**
-         * 更新顶栏及抽屉的单据数量红点提示
-         */
         function updateSavedBadgesCount() {
             const count = savedQuotesDatabase.length;
             const badge = document.getElementById('saved-count-badge');
@@ -1914,9 +1701,6 @@
             }
         }
 
-        /**
-         * 针对历史预算直接进行物理打印
-         */
         function directPrintSavedQuote(id) {
             loadSavedQuoteToCalculator(id);
             setTimeout(() => {
@@ -1924,17 +1708,12 @@
             }, 600);
         }
 
-        /**
-         * 跨页面智能传参与联动重算 (案例馆 -> 测算器)
-         */
         function syncCaseToCalculatorAndNavigate() {
             const cur = projectDatabase[activeCaseIndex];
             
-            // 抓取并提取数值
             const rawArea = parseFloat(cur.area.replace(/[^0-9.]/g, '')) || 90;
             document.getElementById('calc-area').value = rawArea;
 
-            // 匹配新风格系数并自动点选
             const styleSelect = document.getElementById('calc-style');
             if (cur.style.includes('极简') || cur.style.includes('原木') || cur.style.includes('主义')) {
                 styleSelect.value = '1.0'; 
@@ -1950,19 +1729,15 @@
                 styleSelect.value = '1.0';
             }
 
-            // 立刻根据面积更新系统计算
             calculateCosts('system');
 
-            // 升起无阻塞的高端通知 Toast
             showGlobalToast(`成功! 已将「${cur.title.replace('马到设计精装部 · ', '')}」的 ${rawArea}㎡ 与风格同步至预算系统`, 'success');
 
-            // 切换页面
             setTimeout(() => {
                 switchView('calculator');
             }, 300);
         }
 
-        // 统一展示自定义 Toast
         function showGlobalToast(msg, type = 'success') {
             const toast = document.getElementById('global-toast');
             const msgEl = document.getElementById('global-toast-msg');
@@ -1981,7 +1756,6 @@
             }, 3500);
         }
 
-        // 渲染案例选择按钮
         function renderCaseSelectors() {
             const container = document.getElementById('cases-selector-tabs');
             container.innerHTML = '';
@@ -2004,7 +1778,6 @@
                 container.appendChild(card);
             });
 
-            // 后台下拉编辑器同步更新
             const selectEl = document.getElementById('customizer-case-select');
             selectEl.innerHTML = '';
             projectDatabase.forEach((project, index) => {
@@ -2025,7 +1798,6 @@
             loadCaseToCustomizerForm();
         }
 
-        // 数据管理后台中下拉列表直接调度
         function changeCustomizerCase(selectVal) {
             activeCaseIndex = parseInt(selectVal);
             resetDeleteConfirmState();
@@ -2069,76 +1841,172 @@
             renderGalleryGrid();
         }
 
-        function getAbsoluteIndex(tabKey, index) {
-            if (tabKey === 'blueprints') return index;
-            if (tabKey === 'renderings') return 3 + index;
-            if (tabKey === 'reals') return 9 + index;
-            return 0;
+        // 组装弹性图库列表以供 Lightbox 全局循环
+        function getLightboxList() {
+            const cur = projectDatabase[activeCaseIndex];
+            let list = [];
+            cur.blueprints.forEach((src, idx) => {
+                list.push({ src, category: "平面设计图", title: `平面方案 0${idx+1}`, tabKey: 'blueprints', index: idx });
+            });
+            cur.renderings.forEach((src, idx) => {
+                list.push({ src, category: "3D效果图", title: `精装效果提案 0${idx+1}`, tabKey: 'renderings', index: idx });
+            });
+            cur.reals.forEach((src, idx) => {
+                list.push({ src, category: "竣工实景图", title: `完工实景摄影 0${idx+1}`, tabKey: 'reals', index: idx });
+            });
+            return list;
         }
 
+        // 渲染流式动态图库网格（自适应任意长度数组，智能注入添加按键）
         function renderGalleryGrid() {
             const cur = projectDatabase[activeCaseIndex];
             
+            // 安全机制：若案例数组不存在则强制初始化空数组
+            if (!cur.blueprints) cur.blueprints = [];
+            if (!cur.renderings) cur.renderings = [];
+            if (!cur.reals) cur.reals = [];
+
+            // 1. 刷新角标数据
+            document.getElementById('badge-blueprints').textContent = `${cur.blueprints.length}张`;
+            document.getElementById('badge-renderings').textContent = `${cur.renderings.length}张`;
+            document.getElementById('badge-reals').textContent = `${cur.reals.length}张`;
+
+            // 2. 动态平面图渲染
             const bpContainer = document.getElementById('gallery-grid-blueprints');
             bpContainer.innerHTML = '';
             cur.blueprints.forEach((src, idx) => {
-                bpContainer.appendChild(createImageFrame(src, 'blueprints', idx, `平面布置方案 0${idx+1}`));
+                const absIndex = idx; // 绝对偏移
+                bpContainer.appendChild(createImageFrame(src, 'blueprints', idx, `平面方案 0${idx+1}`, absIndex));
             });
+            bpContainer.appendChild(createAddImagePlaceholder('blueprints'));
 
+            // 3. 动态效果图渲染 (大1小N流式排布)
             const renderContainer = document.getElementById('gallery-grid-renderings');
             renderContainer.innerHTML = '';
             cur.renderings.forEach((src, idx) => {
+                const absIndex = cur.blueprints.length + idx; // 绝对偏移
                 const gridClass = idx === 0 ? 'col-span-2 row-span-2 h-[220px] md:h-[320px]' : 'col-span-1 h-[100px] md:h-[150px]';
-                renderContainer.appendChild(createImageFrame(src, 'renderings', idx, `设计效果图 0${idx+1}`, gridClass));
+                renderContainer.appendChild(createImageFrame(src, 'renderings', idx, `设计效果图 0${idx+1}`, absIndex, gridClass));
             });
+            renderContainer.appendChild(createAddImagePlaceholder('renderings'));
 
+            // 4. 动态实景照渲染
             const realContainer = document.getElementById('gallery-grid-reals');
             realContainer.innerHTML = '';
             cur.reals.forEach((src, idx) => {
-                realContainer.appendChild(createImageFrame(src, 'reals', idx, `完工实景摄影 0${idx+1}`));
+                const absIndex = cur.blueprints.length + cur.renderings.length + idx; // 绝对偏移
+                realContainer.appendChild(createImageFrame(src, 'reals', idx, `完工实景摄影 0${idx+1}`, absIndex));
             });
+            realContainer.appendChild(createAddImagePlaceholder('reals'));
         }
 
-        function createImageFrame(src, tabKey, index, titleText, customGridClass = 'h-[140px] md:h-[180px]') {
+        // 新增：动态创建具有替换、删除、放大综合功能的轻奢悬浮相框
+        function createImageFrame(src, tabKey, index, titleText, absIndex, customGridClass = 'h-[140px] md:h-[180px]') {
             const wrapper = document.createElement('div');
             wrapper.className = `relative rounded-xl overflow-hidden shadow group border border-neutral-100 ${customGridClass}`;
             
-            const absIndex = getAbsoluteIndex(tabKey, index);
-
             wrapper.innerHTML = `
-                <img src="${src}" alt="${titleText}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://placehold.co/400x300/e5e7eb/a3a3a3?text=精装图槽+${index+1}'">
-                <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4 text-white z-10">
+                <img src="${src}" alt="${titleText}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://placehold.co/400x300/e5e7eb/a3a3a3?text=未载入施工图'">
+                <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 text-white z-10">
                     <button onclick="event.stopPropagation(); openLightbox(${absIndex})" class="flex flex-col items-center gap-1 hover:text-gold-500 transition-all active:scale-90">
-                        <i class="fa-solid fa-magnifying-glass-plus text-lg"></i>
-                        <span class="text-[8px] font-bold">放大预览</span>
+                        <i class="fa-solid fa-magnifying-glass-plus text-base"></i>
+                        <span class="text-[8px] font-bold">放大</span>
                     </button>
-                    <div class="w-px h-8 bg-white/20"></div>
-                    <button onclick="event.stopPropagation(); triggerImageSlotClick('${tabKey}', ${index})" class="flex flex-col items-center gap-1 hover:text-gold-500 transition-all active:scale-90">
-                        <i class="fa-solid fa-cloud-arrow-up text-lg"></i>
-                        <span class="text-[8px] font-bold">替换图片</span>
+                    <div class="w-px h-6 bg-white/20"></div>
+                    <button onclick="event.stopPropagation(); triggerImageSlotClick('${tabKey}', ${index}, 'replace')" class="flex flex-col items-center gap-1 hover:text-gold-500 transition-all active:scale-90">
+                        <i class="fa-solid fa-cloud-arrow-up text-base"></i>
+                        <span class="text-[8px] font-bold">替换</span>
+                    </button>
+                    <div class="w-px h-6 bg-white/20"></div>
+                    <button onclick="event.stopPropagation(); deleteGalleryImage('${tabKey}', ${index})" class="flex flex-col items-center gap-1 hover:text-red-400 transition-all active:scale-90">
+                        <i class="fa-solid fa-trash-can text-base"></i>
+                        <span class="text-[8px] font-bold">删除</span>
                     </button>
                 </div>
-                <div class="absolute bottom-2 left-2 bg-black/70 backdrop-blur-sm px-2 py-0.5 rounded text-[8px] text-white tracking-wider pointer-events-none">
+                <div class="absolute bottom-2 left-2 bg-black/70 backdrop-blur-sm px-2 py-0.5 rounded text-[8px] text-white tracking-wider pointer-events-none font-sans">
                     ${titleText}
                 </div>
             `;
             return wrapper;
         }
 
-        // 放大灯箱
-        function openLightbox(absIndex) {
-            const cur = projectDatabase[activeCaseIndex];
-            lightboxImagesList = [];
+        // 新增：向指定类目末尾弹性追加“新增图片”的虚线卡片
+        function createAddImagePlaceholder(tabKey) {
+            const addCard = document.createElement('div');
+            
+            // 针对3D效果图的大图布局，如果图集为空，让虚线卡片放大占位，保证视觉优雅
+            const curLength = projectDatabase[activeCaseIndex][tabKey].length;
+            const extraClass = (tabKey === 'renderings' && curLength === 0) 
+                ? 'col-span-2 h-[220px] md:h-[320px]' 
+                : (tabKey === 'renderings' ? 'h-[100px] md:h-[150px]' : 'h-[140px] md:h-[180px]');
 
-            cur.blueprints.forEach((src, idx) => {
-                lightboxImagesList.push({ src, category: "平面设计图", title: `平面方案 0${idx+1}` });
-            });
-            cur.renderings.forEach((src, idx) => {
-                lightboxImagesList.push({ src, category: "3D效果图", title: `精装效果提案 0${idx+1}` });
-            });
-            cur.reals.forEach((src, idx) => {
-                lightboxImagesList.push({ src, category: "竣工实景图", title: `完工实景摄影 0${idx+1}` });
-            });
+            addCard.className = `border-2 border-dashed border-neutral-300 hover:border-gold-500 rounded-xl flex flex-col items-center justify-center p-4 cursor-pointer text-neutral-400 hover:text-gold-600 transition-all bg-neutral-50/50 hover:bg-gold-50/10 ${extraClass}`;
+            addCard.onclick = () => triggerImageSlotClick(tabKey, -1, 'add');
+            addCard.innerHTML = `
+                <i class="fa-solid fa-plus text-xl mb-1.5"></i>
+                <span class="text-xs font-bold font-sans">添加一张新图</span>
+            `;
+            return addCard;
+        }
+
+        // 唤起本地上传动作
+        function triggerImageSlotClick(tabKey, index, action = 'replace') {
+            uploadTargetInfo.caseIndex = activeCaseIndex;
+            uploadTargetInfo.tab = tabKey;
+            uploadTargetInfo.imgIndex = index;
+            uploadTargetInfo.action = action;
+            document.getElementById('global-hidden-uploader').click();
+        }
+
+        // 本地上传回调（智能兼顾覆盖替换、或动态压栈追加新图片）
+        function handleHiddenUpload(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const base64Url = e.target.result;
+                    const info = uploadTargetInfo;
+                    const curCase = projectDatabase[info.caseIndex];
+                    
+                    if (info.action === 'add') {
+                        curCase[info.tab].push(base64Url);
+                        showGlobalToast("新方案照片已成功追加，并同步写入容灾缓存！", "success");
+                    } else {
+                        curCase[info.tab][info.imgIndex] = base64Url;
+                        showGlobalToast("局部图片替换并覆盖成功！", "success");
+                    }
+                    
+                    renderGalleryGrid();
+                    syncToLocalStorage();
+                    input.value = '';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // 新增：弹性物理删除特定栏目的任意索引图片，并瞬间自适应渲染
+        function deleteGalleryImage(tabKey, index) {
+            const curCase = projectDatabase[activeCaseIndex];
+            const targetArray = curCase[tabKey];
+            
+            if (targetArray && targetArray.length > index) {
+                const removedItemName = (tabKey === 'blueprints' ? '平面图' : (tabKey === 'renderings' ? '效果图' : '实景图')) + ` 0${index + 1}`;
+                targetArray.splice(index, 1); // 执行局部删除
+                
+                renderGalleryGrid();
+                syncToLocalStorage();
+                
+                showGlobalToast(`已将「${removedItemName}」自本案图册中安全移除`, "info");
+            }
+        }
+
+        // 放大灯箱（根据当前的真实图片总量重算映射）
+        function openLightbox(absIndex) {
+            lightboxImagesList = getLightboxList();
+
+            if (lightboxImagesList.length === 0) {
+                showGlobalToast("当前图册为空，无法进行灯箱放大！", "info");
+                return;
+            }
 
             currentLightboxIndex = absIndex;
             
@@ -2155,6 +2023,11 @@
         }
 
         function renderLightboxContent() {
+            lightboxImagesList = getLightboxList();
+            if (currentLightboxIndex >= lightboxImagesList.length) {
+                currentLightboxIndex = 0;
+            }
+
             const imgData = lightboxImagesList[currentLightboxIndex];
             const imgEl = document.getElementById('lightbox-img');
             
@@ -2164,9 +2037,10 @@
                 imgEl.style.opacity = '1';
             };
 
-            document.getElementById('lightbox-counter').textContent = `第 ${currentLightboxIndex + 1} / 15 张图片 · ${imgData.category}`;
+            document.getElementById('lightbox-counter').textContent = `第 ${currentLightboxIndex + 1} / ${lightboxImagesList.length} 张图片 · ${imgData.category}`;
             document.getElementById('lightbox-caption').textContent = imgData.title;
 
+            // 动态原点重算
             const dotsContainer = document.getElementById('lightbox-dots');
             dotsContainer.innerHTML = '';
             lightboxImagesList.forEach((_, idx) => {
@@ -2181,40 +2055,17 @@
         }
 
         function nextLightboxImage() {
-            currentLightboxIndex = (currentLightboxIndex + 1) % 15;
+            lightboxImagesList = getLightboxList();
+            if (lightboxImagesList.length === 0) return;
+            currentLightboxIndex = (currentLightboxIndex + 1) % lightboxImagesList.length;
             renderLightboxContent();
         }
 
         function prevLightboxImage() {
-            currentLightboxIndex = (currentLightboxIndex - 1 + 15) % 15;
+            lightboxImagesList = getLightboxList();
+            if (lightboxImagesList.length === 0) return;
+            currentLightboxIndex = (currentLightboxIndex - 1 + lightboxImagesList.length) % lightboxImagesList.length;
             renderLightboxContent();
-        }
-
-        function triggerImageSlotClick(tabKey, index) {
-            uploadTargetInfo.caseIndex = activeCaseIndex;
-            uploadTargetInfo.tab = tabKey;
-            uploadTargetInfo.imgIndex = index;
-            document.getElementById('global-hidden-uploader').click();
-        }
-
-        function handleHiddenUpload(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const base64Url = e.target.result;
-                    const info = uploadTargetInfo;
-                    
-                    projectDatabase[info.caseIndex][info.tab][info.imgIndex] = base64Url;
-                    renderGalleryGrid();
-                    
-                    // --- 自动容灾触发 ---
-                    syncToLocalStorage();
-                    
-                    input.value = '';
-                    showGlobalToast("图片本地更新并渲染成功！已存入自动容灾缓存。", "success");
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
         }
 
         function loadCaseToCustomizerForm() {
@@ -2247,7 +2098,6 @@
             cur.subtitle = document.getElementById('edit-case-subtitle').value;
             cur.desc = document.getElementById('edit-case-desc').value;
 
-            // --- 自动容灾触发 ---
             syncToLocalStorage();
 
             resetDeleteConfirmState();
@@ -2273,31 +2123,20 @@
                 designer: "执行：马到设计精装部",
                 desc: "恭喜！这是一个自动生成的新空案例。您现在可以编辑其文字描述，并在页面上直接点击槽位上传项目照片！",
                 blueprints: [
-                    "https://images.unsplash.com/photo-1545464693-f1798a373343?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1581094288338-2314dddb7eed?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=crop&w=600&q=80"
+                    "https://images.unsplash.com/photo-1545464693-f1798a373343?auto=format&fit=crop&w=600&q=80"
                 ],
                 renderings: [
                     "https://images.unsplash.com/photo-1617806118233-18e1db207f62?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1616046229478-9901c5536a45?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=80"
+                    "https://images.unsplash.com/photo-1616046229478-9901c5536a45?auto=format&fit=crop&w=600&q=80"
                 ],
                 reals: [
                     "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1617806118233-18e1db207f62?auto=format&fit=crop&w=600&q=80",
-                    "https://images.unsplash.com/photo-1616046229478-9901c5536a45?auto=format&fit=crop&w=600&q=80"
+                    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=80"
                 ]
             };
             projectDatabase.push(newProject);
             activeCaseIndex = newIndex;
 
-            // --- 自动容灾触发 ---
             syncToLocalStorage();
 
             resetDeleteConfirmState();
@@ -2309,7 +2148,6 @@
             showGlobalToast(`已成功创建「新增案例 0${newIndex + 1}」！可立即编辑更新。`, 'success');
         }
 
-        // 双击/二次确认删除当前案例核心方法
         let deleteConfirmState = false;
         function triggerDeleteCase() {
             if (projectDatabase.length <= 1) {
@@ -2327,7 +2165,6 @@
                 text.textContent = "再次点击确认删除";
                 showGlobalToast(`请再次点击按钮以确认删除案例「${currentCaseName}」！`, "info");
                 
-                // 5秒无后续操作自动退出重置状态
                 setTimeout(() => {
                     if (deleteConfirmState) {
                         resetDeleteConfirmState();
@@ -2337,20 +2174,15 @@
                 deleteConfirmState = false;
                 const deletedName = projectDatabase[activeCaseIndex].title;
                 
-                // 执行物理删除
                 projectDatabase.splice(activeCaseIndex, 1);
                 
-                // 索引安全边界校对
                 if (activeCaseIndex >= projectDatabase.length) {
                     activeCaseIndex = projectDatabase.length - 1;
                 }
                 
                 resetDeleteConfirmState();
-                
-                // --- 自动容灾同步 ---
                 syncToLocalStorage();
 
-                // 重新渲染全局
                 renderCaseSelectors();
                 renderActiveCaseDetails();
                 renderGalleryGrid();
@@ -2360,7 +2192,6 @@
             }
         }
 
-        // 重置删除案例按钮状态
         function resetDeleteConfirmState() {
             deleteConfirmState = false;
             const btn = document.getElementById('btn-delete-case');
@@ -2396,7 +2227,7 @@
                         if (text) return text;
                     }
                 } catch (e) {
-                    // 静默退避
+                    // 静默
                 }
                 await new Promise(resolve => setTimeout(resolve, delay));
                 delay *= 2;
@@ -2536,7 +2367,6 @@
                         const computedBudget = evaluateExcelFormula(item.formula, area, styleFactor, prevVal);
                         runtimeCosts[item.id] = computedBudget;
                         
-                        // 盈亏初始化安全锁
                         if (runtimeActualCosts[item.id] === undefined || runtimeActualCosts[item.id] === 0) {
                             runtimeActualCosts[item.id] = computedBudget;
                         }
@@ -2608,7 +2438,6 @@
             let grandTotalActual = 0;
             let visibleIndex = 1;
 
-            // 1. 动态切换表头
             if (quoteViewMode === 'client') {
                 thead.innerHTML = `
                     <tr class="border-b border-neutral-200 bg-neutral-50/50 text-neutral-400 text-[10px] font-bold uppercase tracking-wider">
@@ -2628,7 +2457,6 @@
                 `;
             }
 
-            // 2. 渲染条目
             baseItems.forEach(item => {
                 const isEnabled = runtimeEnabled[item.id] !== false;
                 if (isEnabled) {
@@ -2678,18 +2506,16 @@
                 }
             });
 
-            // 空白单据状态
             if (tbody.children.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="${quoteViewMode === 'client' ? 3 : 4}" class="py-12 text-center text-neutral-400 font-semibold italic">
+                        <td colspan="${quoteViewMode === 'client' ? 3 : 4}" class="py-12 text-center text-neutral-400 font-semibold italic animate-pulse">
                             您没有选择任何精装工项。请在左侧配置面板中勾选。
                         </td>
                     </tr>
                 `;
             }
 
-            // 3. 动态重画底部造价总面板
             const summaryBlock = document.getElementById('financial-summary-block');
             
             if (quoteViewMode === 'client') {
@@ -2740,12 +2566,10 @@
                             </span>
                         </div>
                     </div>
-                    <!-- 隐藏隐藏字段以配合外部方法检索 -->
                     <div id="quote-final-total" class="hidden">¥ ${grandTotalBudget.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                 `;
             }
 
-            // --- 自动容灾：自动保存工作台 playground 状态 ---
             syncPlaygroundToLocalStorage();
         }
 
@@ -2803,7 +2627,6 @@
             renderRightQuoteTable();
         }
 
-        // 处理打印与多页面兼容
         function triggerPrintWithAlert() {
             if (activePage !== 'calculator') {
                 showGlobalToast("正在为您自动跳转至『工程预算单』，确认后即将拉起打印窗口！", "info");
@@ -2816,7 +2639,6 @@
             }
         }
 
-        // 应急缓存手动清除方案 (防误触设计)
         let resetConfirmState = false;
         function triggerResetCache() {
             const btn = document.getElementById('btn-reset-cache');
@@ -2832,7 +2654,7 @@
                         btn.className = "w-full py-2.5 bg-red-950/40 hover:bg-red-900/50 text-red-400 border border-red-900/40 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 mt-2";
                         text.textContent = "清空本地缓存，还原网页默认值";
                     }
-                }, 8000); // 8 秒无后续操作自动退出重置状态
+                }, 8000); 
             } else {
                 localStorage.removeItem('MADAO_PROJECT_DB');
                 localStorage.removeItem('MADAO_SAVED_QUOTES_DB');
@@ -2845,21 +2667,18 @@
             }
         }
 
-        // 打包本地 HTML
+        // 打包本地全套 HTML 并强行写入当前图集状态
         function exportFullHTML() {
             let docStr = document.documentElement.outerHTML;
 
-            // 替换 projectDatabase 数据库
             const dbRegex = /let projectDatabase = \[\s*[\s\S]*?\]; \/\/ PROJECT_DB/;
             const replacementStr = `let projectDatabase = ${JSON.stringify(projectDatabase, null, 4)}; // PROJECT_DB`;
             docStr = docStr.replace(dbRegex, replacementStr);
 
-            // 替换 savedQuotesDatabase 历史档案库
             const quotesRegex = /let savedQuotesDatabase = \[\s*[\s\S]*?\]; \/\/ SAVED_QUOTES_DB/;
             const replacementQuotesStr = `let savedQuotesDatabase = ${JSON.stringify(savedQuotesDatabase, null, 4)}; // SAVED_QUOTES_DB`;
             docStr = docStr.replace(quotesRegex, replacementQuotesStr);
 
-            // 清理多余的选择标识
             const selectionTagClean = /||<\/selection-tag>/g;
             docStr = docStr.replace(selectionTagClean, "");
 
@@ -2871,7 +2690,6 @@
             showGlobalToast("项目决算包已成功打包并下载网页！可在离线设备上完美运行。", "success");
         }
 
-        // 顶栏滚动收缩
         const header = document.getElementById('main-header');
         window.addEventListener('scroll', () => {
             if (window.scrollY > 20) {
@@ -2883,7 +2701,6 @@
             }
         });
 
-        // 移动端菜单
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
         const mobileMenu = document.getElementById('mobile-menu');
         mobileMenuBtn.addEventListener('click', () => {
@@ -2893,14 +2710,13 @@
             mobileMenu.classList.add('hidden');
         }
 
-        // 定制抽屉
         function toggleCustomizer() {
             const panel = document.getElementById('customizer-panel');
             if (panel.classList.contains('translate-x-full')) {
                 panel.classList.remove('translate-x-full');
             } else {
                 panel.classList.add('translate-x-full');
-                resetDeleteConfirmState(); // 抽屉收起时自动重置删除确认态
+                resetDeleteConfirmState(); 
             }
         }
     </script>
